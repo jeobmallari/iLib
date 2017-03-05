@@ -86,7 +86,8 @@
             android:layout_marginStart="8dp"
             app:layout_constraintLeft_toRightOf="@+id/loginButton"
             android:layout_marginLeft="8dp"
-            app:layout_constraintHorizontal_bias="0.409" />
+            app:layout_constraintHorizontal_bias="0.409"
+            android:onClick="setSignup"/>
 
     </android.support.constraint.ConstraintLayout>
 
