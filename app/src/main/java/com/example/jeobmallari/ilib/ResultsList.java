@@ -1,5 +1,6 @@
 package com.example.jeobmallari.ilib;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,18 +12,20 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class ResultsList extends AppCompatActivity {
+public class ResultsList extends AppCompatActivity implements RecycleViewAdapter.ListItemClickListener {
 
     private static int MAX_VAL;
-
+    Toast mToast;
     String[] listItems;
     ArrayAdapter<String> adapter;
     RecycleViewAdapter rvAdapter;
     RecyclerView rv;
     public static String passed;
+    public static String book;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,15 +53,20 @@ public class ResultsList extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rv.setLayoutManager(layoutManager);
         rv.setHasFixedSize(true);
-        rvAdapter = new RecycleViewAdapter(MAX_VAL, this.passed);
-        rv.setAdapter(rvAdapter);
+        rvAdapter = new RecycleViewAdapter(MAX_VAL, this.passed, this);
+        rv.setAdapter(rvAdapter); //// TODO BY JEOB: ADD LINK FROM RV'S TEXTVIEW TO BOOKDETAIL ACTIVITY
     }
 
-    public void populate(){
-        int arrLen = MAX_VAL;
-        for(int i=0;i<arrLen;i++) {
-            String text = "Book #" + (arrLen + i + 1) + " about " + passed;
-            listItems[arrLen+i] = text;
-        }
+    public void onListItemClick(int clickedItemIndex, String bookTitle){
+        if(mToast != null) mToast.cancel();
+
+        String toastMessage = "Item #"+(clickedItemIndex+1)+", "+bookTitle+" clicked.";
+        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        mToast.show();
+        this.book = bookTitle;
+        Intent intent = new Intent(this, BookDetail.class);
+        intent.putExtra(Intent.EXTRA_TEXT, bookTitle);
+        startActivity(intent);
     }
+
 }

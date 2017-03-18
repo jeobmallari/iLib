@@ -1,5 +1,6 @@
 package com.example.jeobmallari.ilib;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,5 +25,9 @@ public class BookDetail extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        String bookTitle = this.getIntent().getStringExtra(Intent.EXTRA_TEXT);
+
+        getSupportActionBar().setTitle(bookTitle);
     }
 }

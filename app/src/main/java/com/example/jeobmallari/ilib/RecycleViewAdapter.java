@@ -19,15 +19,22 @@ import static android.content.ContentValues.TAG;
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ResourceViewHolder> {
 
     private static final String TAG = RecycleViewAdapter.class.getSimpleName();
+    final private ListItemClickListener mOnClickListener;
     private int mNumberItems;
+
+    public interface ListItemClickListener{
+        void onListItemClick(int clickedItemIndex, String titleOfResource);
+    }
+
     private String received;
 //    public RecycleViewAdapter(int numberItems){
 //        mNumberItems = numberItems;
 //    }
 
-    public RecycleViewAdapter(int numberItems, String passed){
+    public RecycleViewAdapter(int numberItems, String passed, ListItemClickListener listener){
         mNumberItems = numberItems;
         received = passed;
+        mOnClickListener = listener;
     }
 
     @Override
@@ -56,7 +63,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     }
 
 
-    public class ResourceViewHolder extends RecyclerView.ViewHolder{
+    public class ResourceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView resource_tv;
         ArrayList<String> listItems;
         String[] trial;
@@ -64,25 +71,31 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             super(itemView);
 
             listItems = new ArrayList<String>();
-            trial = itemView.getResources().getStringArray(R.array.sample_items);
+            trial = itemView.getResources().getStringArray(R.array.sample_items);   // use this string to display book titles
             for(int i=0;i<trial.length;i++){
                 listItems.add(trial[i]);
             }
-
+            itemView.setOnClickListener(this);
             resource_tv = (TextView) itemView.findViewById(R.id.tv_resource_item);
         }
 
         public void populate(){ // TODO BY JEOB USE THIS FXN TO POPULATE BOOK RESULTS
             int arrLen = trial.length;
             for(int i=arrLen;i<mNumberItems;i++) {
-                String text = "Book #" + (i+1) + " about " + received;
+                String text = "Book #" + (i+1) + " about " + received; // use this string to display book titles
                 //listItems[arrLen+i] = text;
                 listItems.add(i, text);
             }
         }
 
-        public void bind(int data){ // data is list index
+        public void bind(int data){ // data is the list index
             resource_tv.setText(listItems.get(data)+"\n");
+        }
+
+        public void onClick(View view){
+            int clickedItemPosition = getAdapterPosition();
+            String bookTitle = listItems.get(clickedItemPosition);
+            mOnClickListener.onListItemClick(clickedItemPosition, bookTitle);
         }
     }
 
