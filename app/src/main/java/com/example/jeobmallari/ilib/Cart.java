@@ -1,6 +1,5 @@
 package com.example.jeobmallari.ilib;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,21 +13,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import android.widget.Button;
-
-import android.widget.EditText;
-
-
-public class Home extends AppCompatActivity
+public class Cart extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    public static String intentString = "intent string";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_cart);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -64,7 +55,7 @@ public class Home extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.cart, menu);
         return true;
     }
 
@@ -89,35 +80,22 @@ public class Home extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_adv_srch) {
-            // start adv search activity
-            Intent intent = new Intent(this, AdvSearchActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_profile) {
-            // start profile activity
-        } else if (id == R.id.nav_about) {
-            // start about activity
-        } else if (id == R.id.nav_settings) {
-            // start optional settings activity
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void searchIsTapped(View view){
-        // change to listview activity containing list of books
-        Intent intent = new Intent(this, ResultsList.class);
-        EditText et = (EditText) findViewById(R.id.et_query_home);
-        String query = et.getText().toString();
-        if(query.equals("")){
-            Snackbar.make(view, "Enter search query", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
-        }
-        else{
-            intent.putExtra(intentString, query);
-            startActivity(intent);
-        }
     }
 }
