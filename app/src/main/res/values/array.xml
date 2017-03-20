@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="list_array">
-        <item>One</item>
-        <item>Two</item>
-        <item>Three</item>
+    <string-array name="field">
+        <item>Any Field</item>
+        <item>Title</item>
+        <item>Author</item>
+        <item>Accession Number</item>
+        <item>Call Number</item>
+        <item>ISBN/ISSN</item>
+        <item>Publisher</item>
+        <item>Subject</item>
+    </string-array>
+
+    <string-array name="format">
+        <item>Book</item>
+        <item>Computer File</item>
+        <item>Serial</item>
+        <item>Visual Material</item>
+        <item>Map</item>
+        <item>Mixed Material</item>
+        <item>Music</item>
+        <item>Thesis</item>
+        <item>Article</item>
     </string-array>
 
     <string-array name="sample_items">
@@ -14,5 +31,90 @@
         <item>Harry Potter and the Order of the Phoenix</item>
         <item>Harry Potter and the Half-Blood Prince</item>
         <item>Harry Potter and the Deathly Hollows</item>
+    </string-array>
+
+    <string-array name="location">
+        <item>Any Location</item>
+        <item>Diliman College of Architecture</item>
+        <item>UPLB College of Agriculture</item>
+        <item>UPLB College of Agriculture-Agricultural Systems Cluster</item>
+        <item>UPLB College of Agriculture-Crop Protection Cluster</item>
+        <item>UPLB College of Agriculture-Crop Science Cluster</item>
+        <item>UPLB College of Arts and Sciences</item>
+        <item>UPLB College of Development Communication</item>
+        <item>UPLB College of Economics and Management</item>
+        <item>UPLB College of Engineering and Agro-Industrial Technology</item>
+        <item>UPLB College of Forestry and Natural Resources</item>
+        <item>UPLB College of Human Ecology</item>
+        <item>UPLB College of Public Affairs and Development</item>
+        <item>UPLB College of Veterinary Medicine</item>
+        <item>UPLB Main Library</item>
+        <item>UPLB Main Library Acquisitions Section</item>
+        <item>UPLB Main Library Cataloging Section</item>
+        <item>UPLB Main Library Filipiniana Section</item>
+        <item>UPLB Main Library Learning Commons</item>
+        <item>UPLB Main Library Reserve Section</item>
+        <item>UPLB Main Library Serials Section</item>
+        <item>UPLB Main Library Special Collections Section</item>
+        <item>UPLB Museum of Natural History</item>
+        <item>UPLB National Institute of Molecular Biology and Biotechnology</item>
+        <item>UPLB Postharvest Culture Training and Research Center</item>
+        <item>UPLB Rural High School</item>
+        <item>UPLB School of Environmental Science and Management</item>
+    </string-array>
+    
+    <string-array name="type">
+        <item>Any Type</item>
+        <item>Filipiniana (Room-use Only)</item>
+        <item>Non-Circulation</item>
+        <item>One-Week Book</item>
+        <item>Reference (Room-use Only)</item>
+        <item>Regular Circulation</item>
+        <item>Reserve Book</item>
+        <item>Room-Use Only</item>
+        <item>Room-Use Only</item>
+        <item>Room-Use Only</item>
+        <item>Three-Day Book</item>
+    </string-array>
+
+    <string-array name="operator">
+        <item>AND</item>
+        <item>OR</item>
+    </string-array>
+
+    <string-array name="db_tableNames">
+        <item>User</item>
+        <item>Book</item>
+    </string-array>
+
+    <string-array name="db_user_cols">
+        <item>userID</item>
+        <item>uname</item>
+        <item>password</item>
+        <item>fname</item>
+        <item>lname</item>
+        <item>upmail</item>
+        <item>booksBorrowed</item>
+        <item>cartEntries</item>
+        <item>fine</item>
+    </string-array>
+
+    <string-array name="db_book_cols">
+        <item>bookID</item>
+        <item>author</item>
+        <item>title</item>
+        <item>publisher</item>
+        <item>volYear</item>
+        <item>noOfCopies</item>
+        <item>format</item>
+        <item>circulationType</item>
+        <item>location</item>
+        <item>status</item>
+        <item>subject</item>
+        <item>isbnNo</item>
+        <item>callNo</item>
+        <item>accessionNo</item>
+        <item>dateBorrowed</item>
+        <item>dueDate</item>
     </string-array>
 </resources>

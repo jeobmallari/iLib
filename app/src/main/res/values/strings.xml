@@ -117,4 +117,13 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_results_list">Here are your books</string>
+    <string name="title_activity_adv_search">AdvSearchActivity</string>
+    <string name="adv_search">Welcome to Advanced Search!</string>
+    <string name="search_field">Search Field</string>
+    <string name="search_exp">Search Expression</string>
+    <string name="search_loc">Location:</string>
+    <string name="search_type">Type:</string>
+    <string name="search_format">Format:</string>
+    <string name="search_operator">Operator</string>
+
 </resources>

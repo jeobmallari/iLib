@@ -84,18 +84,16 @@ public class Home extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_adv_srch) {
+            // start adv search activity
+            Intent intent = new Intent(this, AdvSearchActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_profile) {
+            // start profile activity
+        } else if (id == R.id.nav_about) {
+            // start about activity
+        } else if (id == R.id.nav_settings) {
+            // start optional settings activity
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
