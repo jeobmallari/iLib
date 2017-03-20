@@ -9,7 +9,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_milib"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -30,9 +30,19 @@
             </intent-filter>
         </activity>
         <activity
+
             android:name=".Cart"
             android:label="@string/title_activity_cart"
             android:theme="@style/AppTheme.NoActionBar" />
+
+            android:name=".BookDetail"
+            android:label="@string/title_activity_book_detail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ResultsList"
+            android:label="@string/title_activity_results_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

@@ -13,12 +13,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import android.widget.Button;
+
+import android.widget.EditText;
+
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+
     Button b;
+
+    public static String intentString = "intent string";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,5 +122,20 @@ public class Home extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void searchIsTapped(View view){
+        // change to listview activity containing list of books
+        Intent intent = new Intent(this, ResultsList.class);
+        EditText et = (EditText) findViewById(R.id.et_query_home);
+        String query = et.getText().toString();
+        if(query.equals("")){
+            Snackbar.make(view, "Enter search query", Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
+        else{
+            intent.putExtra(intentString, query);
+            startActivity(intent);
+        }
     }
 }
