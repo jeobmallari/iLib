@@ -30,7 +30,6 @@
             </intent-filter>
         </activity>
         <activity
-
             android:name=".Cart"
             android:label="@string/title_activity_cart"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -45,8 +44,15 @@
         <activity
             android:name=".AdvSearchActivity"
             android:label="@string/title_activity_adv_search"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".BookInfo"
+            android:label="@string/title_activity_book_info"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Profile"
+            android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-
     </application>
 
 </manifest>

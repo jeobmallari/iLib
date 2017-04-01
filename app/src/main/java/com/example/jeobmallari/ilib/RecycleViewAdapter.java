@@ -92,6 +92,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             resource_tv.setText(listItems.get(data)+"\n");
         }
 
+        @Override
         public void onClick(View view){
             int clickedItemPosition = getAdapterPosition();
             String bookTitle = listItems.get(clickedItemPosition);

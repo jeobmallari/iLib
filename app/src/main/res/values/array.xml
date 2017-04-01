@@ -12,6 +12,7 @@
     </string-array>
 
     <string-array name="format">
+        <item>Any Format</item>
         <item>Book</item>
         <item>Computer File</item>
         <item>Serial</item>
