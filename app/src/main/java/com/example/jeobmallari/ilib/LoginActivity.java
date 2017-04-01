@@ -30,9 +30,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -51,7 +54,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world", ":"
+            "foo@example.com:hello", "bar@example.com:world", "jnmallari@up.edu.ph:Duquesne0319"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -195,12 +198,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return email.contains("@up.edu.ph");
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        Pattern pattern = Pattern.compile("@([a-zA-Z]*[0-9]*)+");
+        Matcher matcher = pattern.matcher(password);
+        if((password.length() > 4) && matcher.matches()){
+            Toast.makeText(this, "Password must be alphanumeric only, with 5 characters or above.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, password+" "+matcher.matches(), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
     /**

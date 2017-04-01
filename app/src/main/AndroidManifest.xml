@@ -33,9 +33,10 @@
             android:name=".Cart"
             android:label="@string/title_activity_cart"
             android:theme="@style/AppTheme.NoActionBar" />
-        android:name=".BookDetail"
-        android:label="@string/title_activity_book_detail"
-        android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".BookDetail"
+            android:label="@string/title_activity_book_detail"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ResultsList"
             android:label="@string/title_activity_results_list"
