@@ -13,24 +13,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TabHost;
 
-import android.widget.Button;
-
-import android.widget.EditText;
-
-
-public class Home extends AppCompatActivity
+public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static String intentString = "intent string";
-
+//    public static TabHost tabHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_profile);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+//        tabHost = (TabHost) findViewById(R.id.tabHost);
+//        tabHost.setup();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -55,7 +53,7 @@ public class Home extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.profile, menu);
         return true;
     }
 
@@ -101,20 +99,5 @@ public class Home extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void searchIsTapped(View view){
-        // change to listview activity containing list of books
-        Intent intent = new Intent(this, ResultsList.class);
-        EditText et = (EditText) findViewById(R.id.et_query_home);
-        String query = et.getText().toString();
-        if(query.equals("")){
-            Snackbar.make(view, "Enter search query", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
-        }
-        else{
-            intent.putExtra(intentString, query);
-            startActivity(intent);
-        }
     }
 }

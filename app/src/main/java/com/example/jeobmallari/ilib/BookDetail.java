@@ -21,13 +21,17 @@ public class BookDetail extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                goSearch();
             }
         });
 
         String bookTitle = this.getIntent().getStringExtra(Intent.EXTRA_TEXT);
 
         getSupportActionBar().setTitle(bookTitle);
+    }
+
+    public void goSearch(){
+        Intent intent = new Intent(this, Home.class);
+        startActivity(intent);
     }
 }
