@@ -96,6 +96,8 @@ public class Home extends AppCompatActivity
             // start about activity
         } else if (id == R.id.nav_settings) {
             // start optional settings activity
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -38,6 +38,7 @@ public class Profile extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        get
     }
 
     @Override
@@ -94,6 +95,8 @@ public class Profile extends AppCompatActivity
             // start about activity
         } else if (id == R.id.nav_settings) {
             // start optional settings activity
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

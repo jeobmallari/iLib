@@ -109,11 +109,12 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Yla Rizel R. Bandian"
         android:textAppearance="@style/TextAppearance.AppCompat.Title.Inverse"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView6" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView6"
+        android:text="blah"/>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="0dp"

@@ -75,9 +75,9 @@ public class AdvSearchActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_adv_srch) {
+        if (id == R.id.nav_home) {
             // start adv search activity
-            Intent intent = new Intent(this, AdvSearchActivity.class);
+            Intent intent = new Intent(this, Home.class);
             startActivity(intent);
         } else if (id == R.id.nav_profile) {
             // start profile activity
@@ -91,6 +91,8 @@ public class AdvSearchActivity extends AppCompatActivity
             // start about activity
         } else if (id == R.id.nav_settings) {
             // start optional settings activity
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
