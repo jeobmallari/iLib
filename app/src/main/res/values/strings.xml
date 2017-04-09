@@ -219,5 +219,6 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
 
+    <string name="signInUsingUPMail">Sign in using your UP Mail Account!</string>
 
 </resources>

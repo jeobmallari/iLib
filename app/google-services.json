@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "333006377446",
+    "project_id": "firebase-milib"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333006377446:android:dbf7f5639391643a",
+        "android_client_info": {
+          "package_name": "com.example.jeobmallari.ilib"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333006377446-p198u08usegagujgccscuqv8erc3r9up.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.jeobmallari.ilib",
+            "certificate_hash": "053554eb8fe1af8f6f6918bfe2e3e361308f26da"
+          }
+        },
+        {
+          "client_id": "333006377446-d2n8s6rlf50a2nkgj26tpvsht79rt8rj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFjIeVvoGptt1TnFPtnOhOrPsJGouwfAE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,8 @@
 package com.example.jeobmallari.ilib;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,7 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TabHost;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,8 +43,16 @@ public class Profile extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        get
+
+        SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();
+        TextView tv_name = (TextView) findViewById(R.id.profileName);
+        ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
+        tv_name.setText(client.getGivenName());
+        iv_pic.setImageURI(client.getDisplayPic());
+
     }
+
+
 
     @Override
     public void onBackPressed() {

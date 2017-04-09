@@ -17,13 +17,16 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
 
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static String intentString = "intent string";
-
+    GoogleApiClient mGoogleClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,9 @@ public class Home extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
+        Toast.makeText(this, client.getGivenName()+" is logged in", Toast.LENGTH_LONG).show();
     }
 
     @Override
