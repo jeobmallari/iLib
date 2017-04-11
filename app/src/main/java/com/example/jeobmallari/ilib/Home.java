@@ -1,9 +1,11 @@
 package com.example.jeobmallari.ilib;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,7 +21,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 
 public class Home extends AppCompatActivity
@@ -45,7 +52,6 @@ public class Home extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
-        Toast.makeText(this, client.getGivenName()+" is logged in", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -54,7 +60,23 @@ public class Home extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.logoutConfirmationBody)
+                    .setTitle(R.string.logoutConfirmationTitle);
+            builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User clicked OK button
+                    Auth.GoogleSignInApi.signOut(mGoogleClient);
+                    Home.super.onBackPressed();
+                }
+            });
+            builder.setNegativeButton(R.string.noOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

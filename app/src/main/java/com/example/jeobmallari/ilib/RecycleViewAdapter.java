@@ -7,10 +7,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
+import static android.widget.Toast.*;
 
 /**
  * Created by Jeob Mallari on 3/12/2017.
@@ -21,6 +30,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     private static final String TAG = RecycleViewAdapter.class.getSimpleName();
     final private ListItemClickListener mOnClickListener;
     private int mNumberItems;
+    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
 
     public interface ListItemClickListener{
         void onListItemClick(int clickedItemIndex, String titleOfResource);
@@ -67,25 +77,35 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         TextView resource_tv;
         ArrayList<String> listItems;
         String[] trial;
+        View rv_parent;
         public ResourceViewHolder(View itemView){
             super(itemView);
-
+            rv_parent = itemView;
             listItems = new ArrayList<String>();
-            trial = itemView.getResources().getStringArray(R.array.sample_items);   // use this string to display book titles
-            for(int i=0;i<trial.length;i++){
-                listItems.add(trial[i]);
-            }
+
             itemView.setOnClickListener(this);
             resource_tv = (TextView) itemView.findViewById(R.id.tv_resource_item);
         }
 
         public void populate(){ // TODO BY JEOB USE THIS FXN TO POPULATE BOOK RESULTS
-            int arrLen = trial.length;
-            for(int i=arrLen;i<mNumberItems;i++) {
-                String text = "Book #" + (i+1) + " about " + received; // use this string to display book titles
-                //listItems[arrLen+i] = text;
-                listItems.add(i, text);
-            }
+            DatabaseReference childRef = dbRef.child("books");
+            // use String received
+            childRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    List books = new ArrayList<>();
+                    for (DataSnapshot bookDataSnapshot : dataSnapshot.getChildren()) {
+                        String book = bookDataSnapshot.getValue(String.class);
+                        listItems.add(book);
+                    }
+//                    listItems.(books);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(null, "Error in data access.", LENGTH_LONG).show();
+                }
+            });
         }
 
         public void bind(int data){ // data is the list index

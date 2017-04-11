@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "333006377446",
-    "project_id": "firebase-milib"
+    "firebase_url": "https://fir-milib.firebaseio.com",
+    "project_id": "firebase-milib",
+    "storage_bucket": "firebase-milib.appspot.com"
   },
   "client": [
     {
@@ -12,6 +14,10 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "333006377446-5nilit3iak073706smot39qmccuukobc.apps.googleusercontent.com",
+          "client_type": 3
+        },
         {
           "client_id": "333006377446-p198u08usegagujgccscuqv8erc3r9up.apps.googleusercontent.com",
           "client_type": 1,
@@ -35,11 +41,16 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333006377446-5nilit3iak073706smot39qmccuukobc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

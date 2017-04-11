@@ -14,6 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 
 public class ResultsList extends AppCompatActivity implements RecycleViewAdapter.ListItemClickListener {
@@ -26,6 +30,7 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
     RecyclerView rv;
     public static String passed;
     public static String book;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
