@@ -90,6 +90,8 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         public void populate(){ // TODO BY JEOB USE THIS FXN TO POPULATE BOOK RESULTS
             DatabaseReference childRef = dbRef.child("books");
             // use String received
+
+            // TODO EDIT CODE TO IMPLEMENT DATA RETRIEVAL. THIS addValueEventListener ONLY LISTENS TO VALUE CHANGES
             childRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -98,9 +100,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                         String book = bookDataSnapshot.getValue(String.class);
                         listItems.add(book);
                     }
-//                    listItems.(books);
                 }
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                     Toast.makeText(null, "Error in data access.", LENGTH_LONG).show();
