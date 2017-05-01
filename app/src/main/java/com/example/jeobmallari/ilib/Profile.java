@@ -61,17 +61,23 @@ public class Profile extends AppCompatActivity
         ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
         tv_name.setText(client.getGivenName());
 
-        URL url = null;
-        try{
-            url = new URL(client.getDisplayPic().toString());
-        }catch(MalformedURLException e){
-            e.printStackTrace();
+        if(client.getDisplayPic() != null){
+            URL url = null;
+            try {
+                Log.e("SEE THIS: ", client.getName());
+                url = new URL(client.getDisplayPic().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            new DownloadImageTask(iv_pic).execute(url.toString());
+
+            //        Toast.makeText(this, client.getDisplayPic().toString(), Toast.LENGTH_LONG).show();
+            Log.e("Image Bitmap", client.getDisplayPic().toString());
         }
-
-        new DownloadImageTask(iv_pic).execute(url.toString());
-
-//        Toast.makeText(this, client.getDisplayPic().toString(), Toast.LENGTH_LONG).show();
-        Log.e("Image Bitmap", client.getDisplayPic().toString());
+        else {
+            Toast.makeText(this, "Please set a profile picture in your Google Account.", Toast.LENGTH_LONG).show();
+        }
     }
 
 

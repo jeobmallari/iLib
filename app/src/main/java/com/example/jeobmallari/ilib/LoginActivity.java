@@ -46,8 +46,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -101,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private static final String TAG = "LoginActivity";
 
     public Context context = this;
-    private GoogleApiClient mGoogleApiClient;
+    public static GoogleApiClient mGoogleApiClient;
 
     public static DBHelper dbHelper;
     public static SQLiteDatabase db;
@@ -121,7 +125,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestProfile()
                 .requestEmail()
+                .requestScopes(new Scope(Scopes.PROFILE))
+                .requestScopes(new Scope(Scopes.PLUS_LOGIN))
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -164,27 +171,23 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             if(mGoogleApiClient.isConnected()){
-                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                GoogleSignInAccount acct = result.getSignInAccount();
-                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-                user = SignedInGoogleClient.getOurInstance();
-                user.setDisplayName(acct.getDisplayName());
-                user.setEmail(acct.getEmail());
-                user.setDisplayPic(acct.getPhotoUrl());
-                user.setFamilyName(acct.getFamilyName());
-                user.setGivenName(acct.getGivenName());
-                user.setId(acct.getId());
-                Intent intent = new Intent(context, Home.class);
-                startActivity(intent);
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                        new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(@NonNull Status status) {
+                                // wala lang.
+                            }
+                        }
+                );
             }
             datum = data;
             FirebaseCallback fbc = new FirebaseCallback() {
                 @Override
                 public void onRespond() {
+                    Log.e("Callback: ", "Back to Main UI Thread");
                     GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(datum);
                     handleSignInResult(result);
                 }
@@ -315,7 +318,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        Log.e(TAG, "handleSignInResult:" + result.isSuccess());
 
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
@@ -328,6 +331,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             user.setGivenName(acct.getGivenName());
             user.setId(acct.getId());
 
+            /*/-------------------------------------------------------
+            Log.e("Given Name: ",user.getGivenName());
+            Log.e("Display Name: ",user.getDisplayName());
+            Log.e("Email: ",user.getEmail());
+            //Log.e("Display Pic: ",user.getDisplayPic().toString());
+            Log.e("Family Name: ",user.getFamilyName());
+            Log.e("ID: ",user.getId());
+            //-------------------------------------------------------*/
+
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
 
             Intent intent = new Intent(context, Home.class);
@@ -335,6 +347,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         } else {
             // Signed out, show unauthenticated UI.
+            Log.e(TAG, "Login err: "+result.isSuccess());
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             String prompt = "Failed logging in.";
             Toast.makeText(this, prompt, Toast.LENGTH_LONG).show();

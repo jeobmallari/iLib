@@ -53,7 +53,7 @@ public class Home extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        mGoogleClient = LoginActivity.mGoogleApiClient;
         SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
     }
 
@@ -69,8 +69,13 @@ public class Home extends AppCompatActivity
             builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // User clicked OK button
-                    Auth.GoogleSignInApi.signOut(mGoogleClient);
-                    Home.super.onBackPressed();
+                    if(mGoogleClient != null) {
+                        Auth.GoogleSignInApi.signOut(mGoogleClient);
+                        Home.super.onBackPressed();
+                    }
+                    else{
+                        Home.super.onBackPressed();
+                    }
                 }
             });
             builder.setNegativeButton(R.string.noOption, new DialogInterface.OnClickListener() {
