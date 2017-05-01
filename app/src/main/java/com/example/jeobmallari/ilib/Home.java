@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -27,6 +28,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 
 public class Home extends AppCompatActivity
@@ -137,7 +140,18 @@ public class Home extends AppCompatActivity
         // change to listview activity containing list of books
         Intent intent = new Intent(this, ResultsList.class);
         EditText et = (EditText) findViewById(R.id.et_query_home);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_home);
+        String spinnerField = spinner.getSelectedItem().toString();
+        String field = "";
+        String[] spinnerArray = this.getResources().getStringArray(R.array.field);
+        for(int i=0;i<spinnerArray.length;i++){
+            if(spinnerField.equals(spinnerArray[i])){
+                field = spinnerArray[i];
+                break;
+            }
+        }
         String query = et.getText().toString();
+        query += "~"+field;
         if(query.equals("")){
             Snackbar.make(view, "Enter search query", Snackbar.LENGTH_SHORT)
                     .setAction("Action", null).show();

@@ -1,11 +1,16 @@
 package com.example.jeobmallari.ilib;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,10 +25,17 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-//    public static TabHost tabHost;
+    public static TabHost tabHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +44,8 @@ public class Profile extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        tabHost = (TabHost) findViewById(R.id.tabHost);
-//        tabHost.setup();
+        tabHost = (TabHost) findViewById(R.id.tabHost);
+        tabHost.setup();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -48,8 +60,18 @@ public class Profile extends AppCompatActivity
         TextView tv_name = (TextView) findViewById(R.id.profileName);
         ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
         tv_name.setText(client.getGivenName());
-        iv_pic.setImageURI(client.getDisplayPic());
 
+        URL url = null;
+        try{
+            url = new URL(client.getDisplayPic().toString());
+        }catch(MalformedURLException e){
+            e.printStackTrace();
+        }
+
+        new DownloadImageTask(iv_pic).execute(url.toString());
+
+//        Toast.makeText(this, client.getDisplayPic().toString(), Toast.LENGTH_LONG).show();
+        Log.e("Image Bitmap", client.getDisplayPic().toString());
     }
 
 
@@ -116,4 +138,45 @@ public class Profile extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+        ProgressDialog progressDialog;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(Profile.this);
+            progressDialog.setCancelable(true);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setProgress(0);
+            progressDialog.show();
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+            progressDialog.dismiss();
+            Log.e("Image Loaded", SignedInGoogleClient.getOurInstance().getDisplayPic().toString());
+        }
+    }
+
+
 }

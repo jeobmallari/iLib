@@ -26,25 +26,22 @@ import static android.widget.Toast.*;
  */
 
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ResourceViewHolder> {
-
-    private static final String TAG = RecycleViewAdapter.class.getSimpleName();
     final private ListItemClickListener mOnClickListener;
     private int mNumberItems;
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+    private ResourceViewHolder viewHolder;
+    static ArrayList<String> items;
 
     public interface ListItemClickListener{
         void onListItemClick(int clickedItemIndex, String titleOfResource);
     }
 
     private String received;
-//    public RecycleViewAdapter(int numberItems){
-//        mNumberItems = numberItems;
-//    }
 
-    public RecycleViewAdapter(int numberItems, String passed, ListItemClickListener listener){
-        mNumberItems = numberItems;
+    public RecycleViewAdapter(ArrayList<String> items, String passed, ListItemClickListener listener){
+        this.items = items;
         received = passed;
         mOnClickListener = listener;
+        mNumberItems = this.items.size();
     }
 
     @Override
@@ -55,15 +52,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
-        ResourceViewHolder viewHolder = new ResourceViewHolder(view);
-// ---------------------------------
-        viewHolder.populate();
-// ---------------------------------
+        viewHolder = new ResourceViewHolder(view);
         return viewHolder;
     }
 
     public void onBindViewHolder(ResourceViewHolder holder, int data) {
-        //Log.d(TAG, "#" + position);
         holder.bind(data);
     }
 
@@ -81,31 +74,9 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         public ResourceViewHolder(View itemView){
             super(itemView);
             rv_parent = itemView;
-            listItems = new ArrayList<String>();
-
+            listItems = RecycleViewAdapter.items;
             itemView.setOnClickListener(this);
             resource_tv = (TextView) itemView.findViewById(R.id.tv_resource_item);
-        }
-
-        public void populate(){ // TODO BY JEOB USE THIS FXN TO POPULATE BOOK RESULTS
-            DatabaseReference childRef = dbRef.child("books");
-            // use String received
-
-            // TODO EDIT CODE TO IMPLEMENT DATA RETRIEVAL. THIS addValueEventListener ONLY LISTENS TO VALUE CHANGES
-            childRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-//                    List books = new ArrayList<>();
-                    for (DataSnapshot bookDataSnapshot : dataSnapshot.getChildren()) {
-                        String book = bookDataSnapshot.getValue(String.class);
-                        listItems.add(book);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(null, "Error in data access.", LENGTH_LONG).show();
-                }
-            });
         }
 
         public void bind(int data){ // data is the list index

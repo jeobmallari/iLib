@@ -224,5 +224,7 @@
     <string name="logoutConfirmationTitle">Are you sure you want to log out?</string>
     <string name="okOption">Yes, I\'m Sure</string>
     <string name="noOption">Nope</string>
+    <string name="retValString">Retrieving Values...</string>
+    <string name="internetConnectionRequired">Internet Connection is required.</string>
 
 </resources>
