@@ -2,6 +2,7 @@ package com.example.jeobmallari.ilib;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,6 +27,9 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +41,8 @@ public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static TabHost tabHost;
+    GoogleApiClient mGoogleClient;
+    SignedInGoogleClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +63,11 @@ public class Profile extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();
+        client = SignedInGoogleClient.getOurInstance();
         TextView tv_name = (TextView) findViewById(R.id.profileName);
         ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
         tv_name.setText(client.getGivenName());
+        mGoogleClient = client.getmGoogleClient();
 
         if(client.getDisplayPic() != null){
             URL url = null;
@@ -69,18 +77,13 @@ public class Profile extends AppCompatActivity
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-
             new DownloadImageTask(iv_pic).execute(url.toString());
-
-            //        Toast.makeText(this, client.getDisplayPic().toString(), Toast.LENGTH_LONG).show();
             Log.e("Image Bitmap", client.getDisplayPic().toString());
         }
         else {
             Toast.makeText(this, "Please set a profile picture in your Google Account.", Toast.LENGTH_LONG).show();
         }
     }
-
-
 
     @Override
     public void onBackPressed() {
@@ -138,6 +141,30 @@ public class Profile extends AppCompatActivity
             // start optional settings activity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+        } else if(id == R.id.nav_logout){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.logoutConfirmationBody)
+                    .setTitle(R.string.logoutConfirmationTitle);
+            builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User clicked OK button
+                    if(mGoogleClient.isConnected()) {
+                        Auth.GoogleSignInApi.signOut(mGoogleClient);
+                    }
+                    Intent intent = new Intent(Profile.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+            builder.setNegativeButton(R.string.noOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                    // do nothing
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -170,6 +197,7 @@ public class Profile extends AppCompatActivity
             try {
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
+                in.close();
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();

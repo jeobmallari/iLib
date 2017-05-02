@@ -173,16 +173,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onActivityResult(requestCode, resultCode, data);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            if(mGoogleApiClient.isConnected()){
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                        new ResultCallback<Status>() {
-                            @Override
-                            public void onResult(@NonNull Status status) {
-                                // wala lang.
-                            }
-                        }
-                );
-            }
+//            if(mGoogleApiClient.isConnected()){
+//                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+//                        new ResultCallback<Status>() {
+//                            @Override
+//                            public void onResult(@NonNull Status status) {
+//                                // wala lang.
+//                            }
+//                        }
+//                );
+//            }
             datum = data;
             FirebaseCallback fbc = new FirebaseCallback() {
                 @Override
@@ -231,7 +231,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 LoginActivity.db = LoginActivity.dbHelper.getWritableDatabase();
                 LoginActivity.db.execSQL("DROP TABLE IF EXISTS "+dbHelper.bookTableName);
                 LoginActivity.db.execSQL(dbHelper.createCommand);
-                Cursor c;
                 //--------------------------------------------
                 try{
                     JSONArray bookArr = new JSONArray(jsonString);
@@ -275,6 +274,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         LoginActivity.db.insert(dbHelper.bookTableName, null, values);
                     }
                     Log.e("Insert to db: ", "Successful! ");
+                    urlCon.disconnect();
+                    in.close();
                     Thread.sleep(2000);
                 } catch(SQLiteException e){
                     Log.e("SQLite Err", "@LoginActivity\n"+jsonString);
@@ -330,20 +331,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             user.setFamilyName(acct.getFamilyName());
             user.setGivenName(acct.getGivenName());
             user.setId(acct.getId());
-
-            /*/-------------------------------------------------------
-            Log.e("Given Name: ",user.getGivenName());
-            Log.e("Display Name: ",user.getDisplayName());
-            Log.e("Email: ",user.getEmail());
-            //Log.e("Display Pic: ",user.getDisplayPic().toString());
-            Log.e("Family Name: ",user.getFamilyName());
-            Log.e("ID: ",user.getId());
-            //-------------------------------------------------------*/
+            user.setmGoogleClient(mGoogleApiClient);
+            user.setDBHelper(dbHelper);
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
 
             Intent intent = new Intent(context, Home.class);
             startActivity(intent);
+            finish();
 
         } else {
             // Signed out, show unauthenticated UI.

@@ -2,7 +2,10 @@ package com.example.jeobmallari.ilib;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -35,8 +38,9 @@ import java.util.ArrayList;
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static String intentString = "intent string";
+    public static String intentString = "query";
     GoogleApiClient mGoogleClient;
+    SignedInGoogleClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +57,9 @@ public class Home extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        mGoogleClient = LoginActivity.mGoogleApiClient;
-        SignedInGoogleClient client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
+        client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
+        mGoogleClient = client.getmGoogleClient();
+
     }
 
     @Override
@@ -69,7 +74,7 @@ public class Home extends AppCompatActivity
             builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // User clicked OK button
-                    if(mGoogleClient != null) {
+                    if(mGoogleClient.isConnected()) {
                         Auth.GoogleSignInApi.signOut(mGoogleClient);
                         Home.super.onBackPressed();
                     }
@@ -112,7 +117,7 @@ public class Home extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -134,6 +139,30 @@ public class Home extends AppCompatActivity
             // start optional settings activity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+        } else if(id == R.id.nav_logout){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.logoutConfirmationBody)
+                    .setTitle(R.string.logoutConfirmationTitle);
+            builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User clicked OK button
+                    if(mGoogleClient.isConnected()) {
+                        Auth.GoogleSignInApi.signOut(mGoogleClient);
+                    }
+                    Intent intent = new Intent(Home.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+            builder.setNegativeButton(R.string.noOption, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                    // do nothing
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -155,15 +184,28 @@ public class Home extends AppCompatActivity
                 break;
             }
         }
-        String query = et.getText().toString();
-        query += "~"+field;
+        String query1 = et.getText().toString();
+        String query = query1+"~"+field;
         if(query.equals("")){
             Snackbar.make(view, "Enter search query", Snackbar.LENGTH_SHORT)
                     .setAction("Action", null).show();
         }
         else{
-            intent.putExtra(intentString, query);
-            startActivity(intent);
+            if(field.equals("Any Field")) field = "title";
+
+            String rawsql = "select title from books where " + field + " match '" + query1 + "';";
+            DBHelper dbh = client.getDBHelper();
+            SQLiteDatabase db = dbh.getReadableDatabase();
+            Cursor c = db.rawQuery(rawsql, null);
+            if(c.getCount() > 0) {
+                query += "~basic";
+                intent.putExtra(intentString, query);
+                startActivity(intent);
+            }
+            else {
+                Toast.makeText(this,"Query returned 0 results.",Toast.LENGTH_LONG).show();
+            }
+            c.close();
         }
     }
 }

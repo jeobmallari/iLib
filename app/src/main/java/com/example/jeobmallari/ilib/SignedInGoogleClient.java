@@ -3,6 +3,7 @@ package com.example.jeobmallari.ilib;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 
 import java.util.List;
@@ -21,6 +22,7 @@ class SignedInGoogleClient {
     private String id = "";
     private Uri displayPic;
     private GoogleSignInAccount mGoogleSignInAcct;
+    private DBHelper dbHelper;
 
     private static SignedInGoogleClient ourInstance = null;
 
@@ -32,6 +34,24 @@ class SignedInGoogleClient {
         }
         return ourInstance;
     }
+
+    public void setDBHelper(DBHelper dbh){
+        this.dbHelper = dbh;
+    }
+
+    public DBHelper getDBHelper(){
+        return this.dbHelper;
+    }
+
+    public GoogleApiClient getmGoogleClient() {
+        return mGoogleClient;
+    }
+
+    public void setmGoogleClient(GoogleApiClient mGoogleClient) {
+        this.mGoogleClient = mGoogleClient;
+    }
+
+    private GoogleApiClient mGoogleClient;
 
     public String getEmail() {
         return email;

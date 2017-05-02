@@ -68,6 +68,7 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
     public static String book;
     public static Context context;
     DBHelper dbHelper;
+    SignedInGoogleClient client;
 
     String firebaseBaseURL = "https://fir-milib.firebaseio.com/books/.json";
     String printArg = "print";
@@ -109,41 +110,72 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
         Log.e("Passed: ", this.passed);
         Log.e("Token[0]: ", tokens[0]);
         Log.e("Tokens[1]: ", tokens[1]);
-        DBHelper dbHelper = LoginActivity.dbHelper;
+        Log.e("Tokens[2]: ", tokens[2]);
+        client = SignedInGoogleClient.getOurInstance();
+        DBHelper dbHelper = client.getDBHelper();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        if(tokens[1].equals("Any Field")){
-            tokens[1] = dbHelper.col_title;
+        if(tokens[2].equals("basic")) {
+            // -------------------------------------------
+            // BASIC SEARCH STARTED FROM HOME ACTIVITY
+            // -------------------------------------------
+            if (tokens[1].equals("Any Field")) {
+                tokens[1] = dbHelper.col_title;
+            }
+
+            String rawQry = "SELECT " + dbHelper.col_title
+                    + " FROM " + dbHelper.bookTableName
+                    + " WHERE " + tokens[1]
+                    + " MATCH '" + tokens[0] + "';";
+            try {
+                Log.e("Raw Query: ", rawQry);
+                Cursor cursor = db.rawQuery(rawQry, null);
+                Toast.makeText(this, "Cursor size: " + cursor.getCount(), Toast.LENGTH_LONG).show();
+                if (cursor.moveToFirst()) {
+                    do {
+                        String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
+                        Log.e("Item to add: ", takenTitle);
+                        items.add(takenTitle);
+                    } while (cursor.moveToNext());
+                } else {
+                    Toast.makeText(this, "Error in executing raw query", Toast.LENGTH_LONG).show();
+                }
+                cursor.close();
+            } catch (SQLiteException e) {
+                Log.e("SEARCH ERR", "Invalid SQL");
+                e.printStackTrace();
+            }
+        }
+        else if(tokens[2].equals("adv")){
+            // ------------------------------------------------------
+            // ADVANCED SEARCH STARTED FROM ADVSEAERCHACTIVITY
+            // ------------------------------------------------------
+            // tokens[1] = search; tokens[2] = adv // nothing to do with them
+            // tokens[0] = full query;
+
+            String rawQry = tokens[0];
+
+            try {
+                Log.e("Raw Query: ", rawQry);
+                Cursor cursor = db.rawQuery(rawQry, null);
+                Toast.makeText(this, "Cursor size: " + cursor.getCount(), Toast.LENGTH_LONG).show();
+                if (cursor.moveToFirst()) {
+                    do {
+                        String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
+                        Log.e("Item to add: ", takenTitle);
+                        items.add(takenTitle);
+                    } while (cursor.moveToNext());
+                } else {
+                    Toast.makeText(this, "Error in executing raw query", Toast.LENGTH_LONG).show();
+                }
+                cursor.close();
+            } catch (SQLiteException e) {
+                Log.e("SEARCH ERR", "Invalid SQL");
+                e.printStackTrace();
+            }
+
         }
 
-        String rawQry = "SELECT "+dbHelper.col_title
-                +" FROM "+dbHelper.bookTableName
-                +" WHERE "+tokens[1]
-                +" MATCH '"+tokens[0]+"';";
-        try {
-            Log.e("Raw Query: ", rawQry);
-            Cursor cursor = db.rawQuery(rawQry, null);
-            Toast.makeText(this, "Cursor size: "+cursor.getCount(), Toast.LENGTH_LONG).show();
-            if(cursor.moveToFirst()) {
-                do {
-                    String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
-                    Log.e("Item to add: ", takenTitle);
-                    items.add(takenTitle);
-                } while (cursor.moveToNext());
-            }
-            else {
-                Toast.makeText(this, "Error in executing raw query", Toast.LENGTH_LONG).show();
-            }
-        } catch(SQLiteException e){
-            Log.e("SEARCH ERR", "Invalid SQL");
-            e.printStackTrace();
-        }
-        if(items.size() == 0){
-            items.add("");
-            Toast.makeText(this, "No books matched your query", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(this, Home.class);
-            startActivity(intent);
-        }
         rvAdapter = new RecycleViewAdapter(items, this.passed, this);
         rv.setAdapter(rvAdapter); //// TODO BY JEOB: ADD LINK FROM RV'S TEXTVIEW TO BOOKDETAIL ACTIVITY
     }
