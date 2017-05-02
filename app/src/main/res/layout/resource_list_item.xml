@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:id="@+id/tv_resource_item"
-    android:textSize="20sp">
+    android:layout_gravity="center"
+    android:layout_margin="8dp"
+    android:padding="8dp"
+    card_view:cardBackgroundColor="@color/gray"
+    card_view:cardCornerRadius="16dp"
+    card_view:cardElevation="8dp">
 
-    <!--<TextView-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:id="@+id/tv_resource_item"-->
-        <!--android:fontFamily="monospace"-->
-        <!--android:textSize="20sp"-->
-        <!--/>-->
+    <TextView
+        android:id="@+id/tv_resource_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:padding="16dp"
+        android:text="Hello World!"
+        android:textSize="28sp" />
 
-</TextView>
+</android.support.v7.widget.CardView>

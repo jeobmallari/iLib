@@ -76,6 +76,8 @@ public class Home extends AppCompatActivity
                     // User clicked OK button
                     if(mGoogleClient.isConnected()) {
                         Auth.GoogleSignInApi.signOut(mGoogleClient);
+                        Auth.GoogleSignInApi.revokeAccess(mGoogleClient);
+                        mGoogleClient.disconnect();
                         Home.super.onBackPressed();
                     }
                     else{
@@ -148,6 +150,7 @@ public class Home extends AppCompatActivity
                     // User clicked OK button
                     if(mGoogleClient.isConnected()) {
                         Auth.GoogleSignInApi.signOut(mGoogleClient);
+                        mGoogleClient.disconnect();
                     }
                     Intent intent = new Intent(Home.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
