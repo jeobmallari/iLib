@@ -31,7 +31,7 @@ public class BookDetail extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goSearch();
+                reserveMaterial();
             }
         });
 
@@ -43,9 +43,10 @@ public class BookDetail extends AppCompatActivity {
 
     }
 
-    public void goSearch(){
-        Intent intent = new Intent(this, Home.class);
-        startActivity(intent);
+    public void reserveMaterial(){
+        // see number of copies
+        // check if reservations are full
+        // else add json values to firebase rtdb respectively
     }
 
     public void setElements(){

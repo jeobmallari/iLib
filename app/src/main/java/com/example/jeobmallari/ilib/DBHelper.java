@@ -34,8 +34,10 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "miLibDB";
     private static final int DB_VERSION = 1;
 
-    public static final String userTableName = "User";
+    public static final String userTableName = "users";
     public static final String bookTableName = "books";
+    public static final String reserveTableName = "reservations";
+
     public static final String col_title = "title";
     public static final String col_author = "author";
     public static final String col_accessionNo = "accessionNo";
@@ -53,12 +55,25 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String col_dueDate = "dueDate";
     public static final String col_status = "status";
 
+    public static final String user_col_id = "id";
+    public static final String user_col_name = "name";
+    public static final String user_col_displayname = "displayName";
+    public static final String user_col_email = "email";
+    public static final String user_col_displayPic = "displayPic";
+    public static final String user_col_familyName = "familyName";
+    public static final String user_col_givenName = "givenName";
+
+    public static final String reserve_id = "resID";
+    public static final String res_user_id = "userID";
+
     public static String jsonString = "";
     public static URL url;
 
     String dropDB = "DROP DATABASE IF EXISTS "+DB_NAME+";";
     String createDB = "CREATE DATABASE "+DB_NAME+";";
     String dropTable = "DROP TABLE IF EXISTS "+bookTableName+";";
+    String dropUsers = "DROP TABLE IF EXISTS "+userTableName+";";
+    String dropReservations = "DROP TABLE IF EXISTS "+reserveTableName+";";
 
     String createCommand = "CREATE VIRTUAL TABLE IF NOT EXISTS "+bookTableName+" USING fts4("
             +col_accessionNo+" TEXT NOT NULL, "
@@ -78,9 +93,19 @@ public class DBHelper extends SQLiteOpenHelper {
             +col_title+" TEXT NOT NULL, "
             +col_volYear+" INTEGER NOT NULL);";
 
-    // Firebase REST URL
-    final String firebaseBaseURL = "https://fir-milib.firebaseio.com/books/.json";
-    final String printArg = "print";
+    String createUserTable = "CREATE VIRTUAL TABLE IF NOT EXISTS "+userTableName+" USING fts4("
+            +user_col_id+" INTEGER PRIMARY KEY NOT NULL, "
+            +user_col_name+" TEXT NOT NULL, "
+            +user_col_displayname+" TEXT NOT NULL, "
+            +user_col_familyName+" TEXT NOT NULL, "
+            +user_col_givenName+" TEXT NOT NULL, "
+            +user_col_displayPic+" TEXT NOT NULL, "
+            +user_col_email+" TEXT NOT NULL);";
+
+    String createReservations = "CREATE VIRTUAL TABLE IF NOT EXISTS "+reserveTableName+" USING fts4("
+            +reserve_id+" INTEGER PRIMARY KEY NOT NULL, "
+            +col_bookId+" INTEGER NOT NULL, "
+            +user_col_id+" INTEGER NOT NULL);";
 
     SQLiteDatabase myWritableDB;
     SQLiteDatabase myReadableDB;
@@ -102,11 +127,15 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(createCommand);
+        db.execSQL(createUserTable);
+        db.execSQL(createReservations);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL(dropTable);
+        sqLiteDatabase.execSQL(dropUsers);
+        sqLiteDatabase.execSQL(dropReservations);
         onCreate(sqLiteDatabase);
     }
 }

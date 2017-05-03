@@ -59,6 +59,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -94,6 +99,17 @@ import static com.example.jeobmallari.ilib.DBHelper.col_subject;
 import static com.example.jeobmallari.ilib.DBHelper.col_title;
 import static com.example.jeobmallari.ilib.DBHelper.col_volYear;
 import static com.example.jeobmallari.ilib.DBHelper.bookTableName;
+import static com.example.jeobmallari.ilib.DBHelper.res_user_id;
+import static com.example.jeobmallari.ilib.DBHelper.reserveTableName;
+import static com.example.jeobmallari.ilib.DBHelper.reserve_id;
+import static com.example.jeobmallari.ilib.DBHelper.userTableName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_email;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_familyName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_id;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_name;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_displayname;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_givenName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_displayPic;
 
 /**
  * A login screen that offers login via email/password.
@@ -109,11 +125,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public static DBHelper dbHelper;
     public static SQLiteDatabase db;
-    final String firebaseBaseURL = "https://fir-milib.firebaseio.com/books/.json";
+    final String firebaseBaseURL = "https://fir-milib.firebaseio.com/.json";
     final String printArg = "print";
     static String json = "";
     SignedInGoogleClient user;
     Intent datum;
+
+    DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference mUserRef = mRootRef.child(dbHelper.userTableName);
+    static ArrayList<String> userIDCollection = new ArrayList<String>();
+    User dbUser;
 
     public interface FirebaseCallback{
         void onRespond();
@@ -231,9 +252,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 LoginActivity.db = LoginActivity.dbHelper.getWritableDatabase();
                 LoginActivity.db.execSQL("DROP TABLE IF EXISTS "+dbHelper.bookTableName);
                 LoginActivity.db.execSQL(dbHelper.createCommand);
+                LoginActivity.db.execSQL("DROP TABLE IF EXISTS "+dbHelper.userTableName);
+                LoginActivity.db.execSQL(dbHelper.createUserTable);
+                LoginActivity.db.execSQL("DROP TABLE IF EXISTS "+dbHelper.reserveTableName);
+                LoginActivity.db.execSQL(dbHelper.createReservations);
                 //--------------------------------------------
                 try{
-                    JSONArray bookArr = new JSONArray(jsonString);
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONArray bookArr = jsonObject.getJSONArray(bookTableName);
                     for(int i=0;i<bookArr.length();i++){
                         //Log.e("ARR #"+(i+1), bookArr.getJSONObject(i).toString());
                         JSONObject bookInstance = bookArr.getJSONObject(i);
@@ -273,6 +299,42 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                         LoginActivity.db.insert(dbHelper.bookTableName, null, values);
                     }
+
+                    JSONArray users = jsonObject.getJSONArray(userTableName);
+                    for (int i = 0; i < users.length(); i++) {
+                        JSONObject userInstance = users.getJSONObject(i);
+                        ContentValues valuePairs = new ContentValues();
+                        String id = userInstance.getString(user_col_id);
+                        valuePairs.put(user_col_id, id);
+                        String name = userInstance.getString(user_col_name);
+                        valuePairs.put(user_col_name, name);
+                        String famname = userInstance.getString(user_col_familyName);
+                        valuePairs.put(user_col_familyName, famname);
+                        String dispname = userInstance.getString(user_col_displayname);
+                        valuePairs.put(user_col_name, dispname);
+                        String givenname = userInstance.getString(user_col_givenName);
+                        valuePairs.put(user_col_givenName, givenname);
+                        String email = userInstance.getString(user_col_email);
+                        valuePairs.put(user_col_email, email);
+                        String dp = userInstance.getString(user_col_displayPic);
+                        valuePairs.put(user_col_displayPic, dp);
+                        LoginActivity.db.insert(dbHelper.userTableName, null, valuePairs);
+                    }
+
+                    JSONArray reservations = jsonObject.getJSONArray(reserveTableName);
+                    for(int a=0;a<reservations.length();a++){
+                        JSONObject res = reservations.getJSONObject(a);
+                        ContentValues cv = new ContentValues();
+                        String resid = res.getString(reserve_id);
+                        cv.put(reserve_id, resid);
+                        String bookid = res.getString(col_bookId);
+                        cv.put(col_bookId, bookid);
+                        String userid = res.getString(res_user_id);
+                        cv.put(res_user_id, userid);
+                        LoginActivity.db.insert(reserveTableName, null, cv);
+                    }
+
+
                     Log.e("Insert to db: ", "Successful! ");
                     urlCon.disconnect();
                     in.close();
@@ -281,6 +343,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     Log.e("SQLite Err", "@LoginActivity\n"+jsonString);
                     e.printStackTrace();
                 } catch(JSONException jsonEx){
+                    Log.e("JSON Err", "Look up");
                     jsonEx.printStackTrace();
                 } catch(InterruptedException interrupt){
                     interrupt.printStackTrace();
@@ -333,6 +396,40 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             user.setId(acct.getId());
             user.setmGoogleClient(mGoogleApiClient);
             user.setDBHelper(dbHelper);
+
+            dbUser = new User();
+            dbUser.setId(user.getId());
+            dbUser.setFamilyName(user.getFamilyName());
+            dbUser.setDisplayName(user.getDisplayName());
+            dbUser.setEmail(user.getEmail());
+            dbUser.setGivenName(user.getGivenName());
+            dbUser.setName(user.getName());
+            if(user.getDisplayPic() != null)
+                dbUser.setDisplayPic(user.getDisplayPic().toString());
+            else dbUser.setDisplayPic("");
+
+            FirebaseDatabase.getInstance().getReference().child(dbHelper.userTableName)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        int i=0;
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                User user = snapshot.getValue(User.class);
+                                userIDCollection.add(user.getId());
+                                Log.e("userID collection", "added from rtdb: "+user.getId());
+                                if(dbUser.getId().equals(user.getId())){
+                                    mUserRef.child(dbUser.getId()).setValue(dbUser); // user already exists in db
+                                    break;
+                                }
+                                i++;
+                            }
+                            Log.e("userID collection", "new user: "+dbUser.getId());
+                            mUserRef.child(dbUser.getId()).setValue(dbUser);
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
 
