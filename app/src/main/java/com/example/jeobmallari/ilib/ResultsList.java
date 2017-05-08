@@ -59,20 +59,13 @@ import static com.example.jeobmallari.ilib.DBHelper.col_volYear;
 
 public class ResultsList extends AppCompatActivity implements RecycleViewAdapter.ListItemClickListener {
 
-    private static int MAX_VAL;
     Toast mToast;
-    ArrayAdapter<String> adapter;
     RecycleViewAdapter rvAdapter;
     RecyclerView rv;
     public static String passed;
     public static String book;
     public static Context context;
-    DBHelper dbHelper;
     SignedInGoogleClient client;
-
-    String firebaseBaseURL = "https://fir-milib.firebaseio.com/books/.json";
-    String printArg = "print";
-    static String json;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +87,6 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
 
         this.passed = this.getIntent().getStringExtra(Home.intentString);
         toolbar.setTitle(passed);
-
-        // this.MAX_VAL = 100;
 
         rv = (RecyclerView) findViewById(R.id.rv_results_list);
 
@@ -130,7 +121,7 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
             try {
                 Log.e("Raw Query: ", rawQry);
                 Cursor cursor = db.rawQuery(rawQry, null);
-                Toast.makeText(this, "Cursor size: " + cursor.getCount(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Cursor size: " + cursor.getCount(), Toast.LENGTH_LONG).show();
                 if (cursor.moveToFirst()) {
                     do {
                         String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
@@ -176,8 +167,8 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
 
         }
 
-        rvAdapter = new RecycleViewAdapter(items, this.passed, this);
-        rv.setAdapter(rvAdapter); //// TODO BY JEOB: ADD LINK FROM RV'S TEXTVIEW TO BOOKDETAIL ACTIVITY
+        rvAdapter = new RecycleViewAdapter(items, this);
+        rv.setAdapter(rvAdapter);
     }
 
     public void onListItemClick(int clickedItemIndex, String bookTitle){

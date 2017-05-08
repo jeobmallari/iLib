@@ -1,6 +1,7 @@
 package com.example.jeobmallari.ilib;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,6 +32,11 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Result;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -36,13 +44,32 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
+
+import static com.example.jeobmallari.ilib.DBHelper.col_bookId;
+import static com.example.jeobmallari.ilib.DBHelper.res_user_id;
+import static com.example.jeobmallari.ilib.DBHelper.reserveTableName;
+import static com.example.jeobmallari.ilib.DBHelper.reserve_id;
 
 public class Profile extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RecycleViewAdapter.ListItemClickListener {
 
-    public static TabHost tabHost;
+    RecyclerView rv;
+    RecycleViewAdapter rvAdapter;
     GoogleApiClient mGoogleClient;
     SignedInGoogleClient client;
+    Toast mToast;
+
+    String restCallLink = "https://fir-milib.firebaseio.com/reservations/.json?print=pretty";
+    String book;
+    static int cartLen;
+    static ArrayList<String> mats;
+
+    public interface ResultCallback{
+        public void onRespond();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +77,6 @@ public class Profile extends AppCompatActivity
         setContentView(R.layout.activity_profile);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        tabHost = (TabHost) findViewById(R.id.tabHost);
-        tabHost.setup();
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -66,8 +89,9 @@ public class Profile extends AppCompatActivity
         client = SignedInGoogleClient.getOurInstance();
         TextView tv_name = (TextView) findViewById(R.id.profileName);
         ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
-        tv_name.setText(client.getGivenName());
+        tv_name.setText(client.getGivenName()+" "+client.getFamilyName());
         mGoogleClient = client.getmGoogleClient();
+        mats = new ArrayList<String>();
 
         if(client.getDisplayPic() != null){
             URL url = null;
@@ -83,6 +107,22 @@ public class Profile extends AppCompatActivity
         else {
             Toast.makeText(this, "Please set a profile picture in your Google Account.", Toast.LENGTH_LONG).show();
         }
+
+        ResultCallback rcb = new ResultCallback() {
+            @Override
+            public void onRespond() {
+                rv = (RecyclerView) findViewById(R.id.rv_profile);
+                LinearLayoutManager layoutManager = new LinearLayoutManager(Profile.this);
+                rv.setLayoutManager(layoutManager);
+                rv.setHasFixedSize(true);
+                // set arraylist to pass to rvAdapter
+                rvAdapter = new RecycleViewAdapter(mats, Profile.this);
+                rv.setAdapter(rvAdapter);
+            }
+        };
+
+        new CartCheckerTask(rcb).execute(restCallLink);
+
     }
 
     @Override
@@ -173,6 +213,19 @@ public class Profile extends AppCompatActivity
         return true;
     }
 
+    public void onListItemClick(int clickedItemIndex, String bookTitle){
+        if(mToast != null) mToast.cancel();
+
+        String toastMessage = "Item #"+(clickedItemIndex+1)+", "+bookTitle+" clicked.";
+        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        mToast.show();
+        this.book = bookTitle;
+        Intent intent = new Intent(this, BookDetail.class);
+        intent.putExtra(Intent.EXTRA_TEXT, bookTitle);
+        startActivity(intent);
+
+    }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
         ProgressDialog progressDialog;
@@ -213,5 +266,71 @@ public class Profile extends AppCompatActivity
         }
     }
 
+    private class CartCheckerTask extends AsyncTask<String, Void, String>{
+        String reservations;
+        ProgressDialog progressDialog;
+        int toReturn=0;
+        ResultCallback rcb;
+
+        public CartCheckerTask(ResultCallback callback){
+            this.rcb = callback;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(Profile.this);
+            progressDialog.setCancelable(true);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setProgress(0);
+            progressDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String link = strings[0];
+            try{
+                InputStream in = new java.net.URL(link).openStream();
+                Scanner scanner = new Scanner(in).useDelimiter("\\A");
+                reservations = scanner.hasNext() ? scanner.next() : "";
+                //Log.e("JSON: Reservations: ", reservations);
+
+                JSONObject reserves = new JSONObject(reservations);
+                Iterator<String> iterator = reserves.keys();
+                ArrayList<String> keys = new ArrayList<String>();
+                if(iterator.hasNext()){
+                    do{
+                        keys.add(iterator.next());
+                    }while(iterator.hasNext());
+                }
+
+                for(int a=0;a<reserves.length();a++){
+                    JSONObject res = reserves.getJSONObject(keys.get(a));
+                    //Log.e("JSON: Res: ", res.toString());
+                    if(res.getString("userID").equals(client.getDisplayName())){
+                        // ------------------------------------------------
+                        toReturn++;
+                        Profile.mats.add(res.getString("bookId"));
+                        // ------------------------------------------------
+                    }
+                }
+                in.close();
+                scanner.close();
+            }catch(JSONException e){
+                Log.e("JSON err: Profile", "Reparse json array");
+            } catch(IOException ioe){
+                ioe.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            progressDialog.dismiss();
+            rcb.onRespond();
+        }
+    }
 
 }

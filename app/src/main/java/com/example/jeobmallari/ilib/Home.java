@@ -76,8 +76,6 @@ public class Home extends AppCompatActivity
                     // User clicked OK button
                     if(mGoogleClient.isConnected()) {
                         Auth.GoogleSignInApi.signOut(mGoogleClient);
-                        Auth.GoogleSignInApi.revokeAccess(mGoogleClient);
-                        mGoogleClient.disconnect();
                         Home.super.onBackPressed();
                     }
                     else{

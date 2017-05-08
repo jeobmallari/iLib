@@ -35,11 +35,8 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         void onListItemClick(int clickedItemIndex, String titleOfResource);
     }
 
-    private String received;
-
-    public RecycleViewAdapter(ArrayList<String> items, String passed, ListItemClickListener listener){
+    public RecycleViewAdapter(ArrayList<String> items, ListItemClickListener listener){
         this.items = items;
-        received = passed;
         mOnClickListener = listener;
         mNumberItems = this.items.size();
     }
@@ -69,7 +66,6 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     public class ResourceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView resource_tv;
         ArrayList<String> listItems;
-        String[] trial;
         View rv_parent;
         public ResourceViewHolder(View itemView){
             super(itemView);

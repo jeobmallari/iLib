@@ -338,6 +338,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     Log.e("Insert to db: ", "Successful! ");
                     urlCon.disconnect();
                     in.close();
+                    scan.close();
                     Thread.sleep(2000);
                 } catch(SQLiteException e){
                     Log.e("SQLite Err", "@LoginActivity\n"+jsonString);
@@ -425,6 +426,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             }
                             Log.e("userID collection", "new user: "+dbUser.getId());
                             mUserRef.child(dbUser.getId()).setValue(dbUser);
+
                         }
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
