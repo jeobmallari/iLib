@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -31,6 +33,7 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -75,6 +78,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -103,13 +107,17 @@ import static com.example.jeobmallari.ilib.DBHelper.res_user_id;
 import static com.example.jeobmallari.ilib.DBHelper.reserveTableName;
 import static com.example.jeobmallari.ilib.DBHelper.reserve_id;
 import static com.example.jeobmallari.ilib.DBHelper.userTableName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_bday;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_collegeadd;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_email;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_familyName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_homeadd;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_id;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_name;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_displayname;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_givenName;
 import static com.example.jeobmallari.ilib.DBHelper.user_col_displayPic;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_studno;
 
 /**
  * A login screen that offers login via email/password.
@@ -122,19 +130,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public Context context = this;
     public static GoogleApiClient mGoogleApiClient;
+    public static String stdnum;
+    public static String homeadd;
+    public static String collegeadd;
+    public static String bday;
 
+    User dbUser;
+    ArrayList<String> userIDCollection = new ArrayList<String>();
+    DatabaseReference mUserRef = FirebaseDatabase.getInstance().getReference().child(userTableName);
     public static DBHelper dbHelper;
     public static SQLiteDatabase db;
-    final String firebaseBaseURL = "https://fir-milib.firebaseio.com/.json";
-    final String printArg = "print";
     static String json = "";
     SignedInGoogleClient user;
     Intent datum;
-
-    DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
-    DatabaseReference mUserRef = mRootRef.child(dbHelper.userTableName);
-    static ArrayList<String> userIDCollection = new ArrayList<String>();
-    User dbUser;
+    Iterator<String> key_iterator;
+    ArrayList<String> user_keys;
 
     public interface FirebaseCallback{
         void onRespond();
@@ -149,7 +159,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .requestProfile()
                 .requestEmail()
                 .requestScopes(new Scope(Scopes.PROFILE))
-                .requestScopes(new Scope(Scopes.PLUS_LOGIN))
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -170,7 +179,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     signIn();
                 }
                 else{
-                    String internet = (String) this.getResources().getString(R.string.internetConnectionRequired);
+                    String internet = this.getResources().getString(R.string.internetConnectionRequired);
                     Toast.makeText(this, internet, Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -194,16 +203,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onActivityResult(requestCode, resultCode, data);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-//            if(mGoogleApiClient.isConnected()){
-//                Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-//                        new ResultCallback<Status>() {
-//                            @Override
-//                            public void onResult(@NonNull Status status) {
-//                                // wala lang.
-//                            }
-//                        }
-//                );
-//            }
             datum = data;
             FirebaseCallback fbc = new FirebaseCallback() {
                 @Override
@@ -215,7 +214,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             };
 
             FireBaseQueryTask fbqt = new FireBaseQueryTask(fbc);
-            fbqt.execute(buildURL(firebaseBaseURL, printArg));
+            fbqt.execute(buildURL(getResources().getString(R.string.full_json_query),
+                    getResources().getString(R.string.printarg)));
         }
     }
 
@@ -231,6 +231,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Log.e("Inside onPreExecute: ", "FBQT called.");
             progressDialog = new ProgressDialog(LoginActivity.this);
             progressDialog.setCancelable(false);
             progressDialog.setMessage("Getting Ready...");
@@ -241,6 +242,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         @Override
         protected String doInBackground(URL... urls) {
+            Log.e("Inside doInBackground: ", "AsyncTask Started");
             URL restURL = urls[0];
             try {
                 HttpURLConnection urlCon = (HttpURLConnection) restURL.openConnection();
@@ -300,9 +302,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         LoginActivity.db.insert(dbHelper.bookTableName, null, values);
                     }
 
-                    JSONArray users = jsonObject.getJSONArray(userTableName);
+                    JSONObject users = jsonObject.getJSONObject(userTableName);
+                    key_iterator = users.keys();
+                    user_keys = new ArrayList<String>();
+                    if(key_iterator.hasNext()){
+                        do{
+                            user_keys.add(key_iterator.next());
+                        }while(key_iterator.hasNext());
+                    }
+                    Log.e("JSON Err", "Here @ users");
                     for (int i = 0; i < users.length(); i++) {
-                        JSONObject userInstance = users.getJSONObject(i);
+                        JSONObject userInstance = users.getJSONObject(user_keys.get(i));
                         ContentValues valuePairs = new ContentValues();
                         String id = userInstance.getString(user_col_id);
                         valuePairs.put(user_col_id, id);
@@ -318,12 +328,33 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         valuePairs.put(user_col_email, email);
                         String dp = userInstance.getString(user_col_displayPic);
                         valuePairs.put(user_col_displayPic, dp);
+                        String stdnum = userInstance.getString(user_col_studno);
+                        LoginActivity.stdnum = stdnum;
+                        valuePairs.put(user_col_studno, stdnum);
+                        String ha = userInstance.getString(user_col_homeadd);
+                        LoginActivity.homeadd = ha;
+                        valuePairs.put(user_col_homeadd, ha);
+                        String ca = userInstance.getString(user_col_collegeadd);
+                        LoginActivity.collegeadd = ca;
+                        valuePairs.put(user_col_collegeadd, ca);
+                        String bd = userInstance.getString(user_col_bday);
+                        LoginActivity.bday = bd;
+                        valuePairs.put(user_col_bday, bd);
+
                         LoginActivity.db.insert(dbHelper.userTableName, null, valuePairs);
                     }
 
-                    JSONArray reservations = jsonObject.getJSONArray(reserveTableName);
+                    Log.e("JSON Err", "Here @ reservations");
+                    JSONObject reservations = jsonObject.getJSONObject(reserveTableName);
+                    Iterator<String> iter = reservations.keys();
+                    ArrayList<String> k = new ArrayList<String>();
+                    if(iter.hasNext()){
+                        do{
+                            k.add(iter.next());
+                        }while(iter.hasNext());
+                    }
                     for(int a=0;a<reservations.length();a++){
-                        JSONObject res = reservations.getJSONObject(a);
+                        JSONObject res = reservations.getJSONObject(k.get(a));
                         ContentValues cv = new ContentValues();
                         String resid = res.getString(reserve_id);
                         cv.put(reserve_id, resid);
@@ -333,7 +364,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         cv.put(res_user_id, userid);
                         LoginActivity.db.insert(reserveTableName, null, cv);
                     }
-
 
                     Log.e("Insert to db: ", "Successful! ");
                     urlCon.disconnect();
@@ -397,6 +427,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             user.setId(acct.getId());
             user.setmGoogleClient(mGoogleApiClient);
             user.setDBHelper(dbHelper);
+            user.setDb(LoginActivity.db);
 
             dbUser = new User();
             dbUser.setId(user.getId());
@@ -405,6 +436,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             dbUser.setEmail(user.getEmail());
             dbUser.setGivenName(user.getGivenName());
             dbUser.setName(user.getName());
+
             if(user.getDisplayPic() != null)
                 dbUser.setDisplayPic(user.getDisplayPic().toString());
             else dbUser.setDisplayPic("");
@@ -430,15 +462,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         }
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
+
                         }
                     });
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
 
-            Intent intent = new Intent(context, Home.class);
+            Intent intent = new Intent(this, Home.class);
             startActivity(intent);
             finish();
-
         } else {
             // Signed out, show unauthenticated UI.
             Log.e(TAG, "Login err: "+result.isSuccess());

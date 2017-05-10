@@ -1,5 +1,6 @@
 package com.example.jeobmallari.ilib;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -20,9 +21,14 @@ class SignedInGoogleClient {
     private String givenName = "";
     private String familyName ="";
     private String id = "";
+    private String studentNo = "";
+    private String homeadd = "";
+    private String collegeadd = "";
+    private String bday = "";
     private Uri displayPic;
     private GoogleSignInAccount mGoogleSignInAcct;
     private DBHelper dbHelper;
+    private SQLiteDatabase db;
 
     private static SignedInGoogleClient ourInstance = null;
 
@@ -33,6 +39,46 @@ class SignedInGoogleClient {
             ourInstance = new SignedInGoogleClient();
         }
         return ourInstance;
+    }
+
+    public String getStudentNo() {
+        return studentNo;
+    }
+
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
+
+    public String getHomeadd() {
+        return homeadd;
+    }
+
+    public void setHomeadd(String homeadd) {
+        this.homeadd = homeadd;
+    }
+
+    public String getCollegeadd() {
+        return collegeadd;
+    }
+
+    public void setCollegeadd(String collegeadd) {
+        this.collegeadd = collegeadd;
+    }
+
+    public String getBday() {
+        return bday;
+    }
+
+    public void setBday(String bday) {
+        this.bday = bday;
+    }
+
+    public void setDb(SQLiteDatabase database){
+        this.db = database;
+    }
+
+    public SQLiteDatabase getDb(){
+        return this.db;
     }
 
     public void setDBHelper(DBHelper dbh){

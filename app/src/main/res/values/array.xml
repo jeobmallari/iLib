@@ -118,4 +118,16 @@
         <item>dateBorrowed</item>
         <item>dueDate</item>
     </string-array>
+
+    <string-array name="colleges">
+        <item>College of Agriculture</item>
+        <item>UPLB College of Arts and Sciences</item>
+        <item>UPLB College of Development Communication</item>
+        <item>UPLB College of Economics and Management</item>
+        <item>UPLB College of Engineering and Agro-Industrial Technology</item>
+        <item>UPLB College of Forestry and Natural Resources</item>
+        <item>UPLB College of Human Ecology</item>
+        <item>UPLB College of Public Affairs and Development</item>
+        <item>UPLB College of Veterinary Medicine</item>
+    </string-array>
 </resources>

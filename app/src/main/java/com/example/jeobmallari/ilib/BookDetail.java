@@ -32,6 +32,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,13 +46,21 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import static com.example.jeobmallari.ilib.DBHelper.borrowedTableName;
+import static com.example.jeobmallari.ilib.DBHelper.col_bookId;
+import static com.example.jeobmallari.ilib.DBHelper.col_dueDate;
+import static com.example.jeobmallari.ilib.DBHelper.res_user_id;
+import static com.example.jeobmallari.ilib.DBHelper.reserveTableName;
+import static com.example.jeobmallari.ilib.DBHelper.user_col_id;
+
 public class BookDetail extends AppCompatActivity {
 
     SQLiteDatabase db;
     DBHelper dbHelper;
     Cursor cursor;
     static String bookTitle;
-    String query;
+    static String author;
+    static String dueDate;
 
     static Context context;
 
@@ -73,12 +82,17 @@ public class BookDetail extends AppCompatActivity {
     static SignedInGoogleClient client;
 
     static boolean isAlreadyReserved = false;
+    static boolean fromBorrowed = false;
     static int takenCopies = 0;
     static int numberOfReservations = 0;
     static String bookId;
     static int numberOfCopies;
 
-    ScheduleClient scheduleClient;
+    static ArrayList<String> res_map_userID;
+    static ArrayList<String> res_map_bookId;
+
+    static ArrayList<String> bor_map_userID;
+    static ArrayList<String> bor_map_bookID;
 
     public interface TheCallback{
         public void onCallback();
@@ -100,10 +114,6 @@ public class BookDetail extends AppCompatActivity {
                         .setTitle(R.string.askToReserve_title);
                 builder.setPositiveButton(R.string.okOption, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User clicked OK button
-                        // set flag in BookDetail to call material reservation function
-                        // ---------------------------------
-                        // call asynctask here
                         TheCallback tcb = new TheCallback() {
                             @Override
                             public void onCallback() {
@@ -111,16 +121,12 @@ public class BookDetail extends AppCompatActivity {
                             }
                         };
                         CounterTask ct = new CounterTask(tcb);
-                        String url = "https://fir-milib.firebaseio.com/reservations/.json?print=pretty";
+                        String url = getResources().getString(R.string.full_json_query);
                         ct.execute(url);
-                        // ---------------------------------
-                        // reserveMaterial();
                     }
                 });
                 builder.setNegativeButton(R.string.noOption, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                        // do nothing
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -134,15 +140,12 @@ public class BookDetail extends AppCompatActivity {
         client = SignedInGoogleClient.getOurInstance();
         getSupportActionBar().setTitle(bookTitle);
         setElements();
-
-        scheduleClient = new ScheduleClient(this);
-        scheduleClient.doBindService();
     }
 
-    public static void showMaterialUnavailable(){
+    public static void showMaterialIsInTheLib(){
         AlertDialog.Builder builder = new AlertDialog.Builder(BookDetail.context);
-        builder.setMessage(R.string.materialUnavailable_body)
-        .setTitle(R.string.materialUnavailable_title);
+        builder.setMessage(R.string.materialInTheLib_body)
+                .setTitle(R.string.materialInTheLib_title);
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -155,44 +158,47 @@ public class BookDetail extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
+        isAlreadyReserved = false;
     }
 
     public void reserveMaterial(){
-        final DatabaseReference reservations = FirebaseDatabase.getInstance().getReference().child("reservations");
+        DatabaseReference reservations = FirebaseDatabase.getInstance().getReference().child(reserveTableName);
 
-        ArrayList<String> keys = new ArrayList<String>();
-
-        reservations.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot snap : dataSnapshot.getChildren()){
-                    if(snap.child("bookId").equals(bookId)) takenCopies++;
-                    if(snap.child("userID").getValue().equals(client.getId()) && snap.child("bookId").getValue().equals(bookId)){
-                        isAlreadyReserved = true;   // if user has already reserved the item
-                    }
+        for(int i=0;i<res_map_bookId.size();i++){
+            for(int j=0;j<res_map_userID.size();j++){
+                if(res_map_bookId.get(j).equals(bookId) && res_map_userID.get(j).equals(client.getId())){
+                    isAlreadyReserved = true;
                 }
-
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        }
 
+        for(int i=0;i<bor_map_bookID.size();i++){
+            if(bor_map_bookID.get(i).equals(bookId)){
+                // book exists in borrowed table
+                // client can reserve material
+                fromBorrowed = true;
             }
-        });
+        }
 
         if(isAlreadyReserved) {
-            alreadyReserved();
+            alreadyReserved();      // user already reserved for this book
         }
-        else if(takenCopies == numberOfCopies){
-            // material is no longer available
-            BookDetail.showMaterialUnavailable();
+        else if(!fromBorrowed){
+            showMaterialIsInTheLib();
         }
         else{
             // material is available
             // add reservation to reservations table
             Reservation reservation = new Reservation();
-            reservation.setBookId(BookDetail.bookTitle);
+            reservation.setBookID(BookDetail.bookId);        // change this to int
             reservation.setResID((numberOfReservations+1)+"");
-            reservation.setUserID(client.getDisplayName());
+            reservation.setUserID(client.getId());
+            reservation.setBook(BookDetail.bookTitle);
+            reservation.setAuthor(BookDetail.author);
+            reservation.setStudent(client.getDisplayName());
+            reservation.setValidUntil("");
+            reservation.setEmail(client.getEmail());
+            reservation.setDueDate(BookDetail.dueDate);
             String key = reservations.push().getKey();
             reservations.child(key).setValue(reservation);
 
@@ -203,8 +209,8 @@ public class BookDetail extends AppCompatActivity {
                     .setMessage(R.string.reservationSuccess_body);
             AlertDialog dialog = builder.create();
             dialog.show();
+            fromBorrowed = false;
             // --------------------------------------------------------
-            // startAlarm();
             scheduleJob();
             // --------------------------------------------------------
         }
@@ -212,53 +218,6 @@ public class BookDetail extends AppCompatActivity {
 
     public void scheduleJob(){
         NotificationUtilities.fireNotification(this);
-    }
-
-    public void startAlarm(){
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-        int month = Calendar.getInstance().get(Calendar.MONTH);
-        int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        int minutes = Calendar.getInstance().get(Calendar.MINUTE);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day);
-//        if((hour+21) > 24){       // for 21-hour interval
-//            hour = (hour+1) % 24;
-//            calendar.set(Calendar.DAY_OF_MONTH, ++day);
-//            calendar.set(Calendar.HOUR_OF_DAY, hour);
-//        }
-//        else{
-//            hour += 21;
-//            calendar.set(Calendar.DAY_OF_MONTH, day);
-//            calendar.set(Calendar.HOUR_OF_DAY, hour);
-//        }
-
-//        if((hour+1) > 24){       // for 1-hour interval
-//            hour = (hour+1) % 24;
-//            calendar.set(Calendar.DAY_OF_MONTH, ++day);
-//            calendar.set(Calendar.HOUR_OF_DAY, hour);
-//        }
-//        else{
-//            hour += 1;
-//            calendar.set(Calendar.DAY_OF_MONTH, day);
-//            calendar.set(Calendar.HOUR_OF_DAY, hour);
-//        }
-
-        if((minutes+30) > 60){      // for 10-minute interval
-            minutes = (minutes+10) % 60;
-            calendar.set(Calendar.HOUR_OF_DAY, ++hour);
-            calendar.set(Calendar.MINUTE, minutes);
-        }
-        else{
-            minutes += 30;
-            calendar.set(Calendar.HOUR_OF_DAY, hour);
-            calendar.set(Calendar.MINUTE, minutes);
-        }
-        scheduleClient.setAlarmForNotification(calendar);
-        String msg = "Notification set for: "+ (month+1) +"/"+ day +"/"+ year + ", @ "+hour+ ":"+minutes;
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        Log.e("Notifications: ", msg);
     }
 
     public void setElements(){
@@ -304,7 +263,7 @@ public class BookDetail extends AppCompatActivity {
 
         bookId = BookDetail.tv1.getText().toString();
         numberOfCopies = Integer.parseInt(BookDetail.tv14.getText().toString());
-
+        author = BookDetail.tv3.getText().toString();
     }
 
     public class CounterTask extends AsyncTask<String, Void, String>{
@@ -340,10 +299,15 @@ public class BookDetail extends AppCompatActivity {
                 Scanner scanner = new Scanner(in).useDelimiter("\\A");
                 reservationsString = scanner.hasNext() ? scanner.next() : "";
 
-                JSONObject res = new JSONObject(reservationsString);
+                res_map_bookId = new ArrayList<String>();
+                res_map_userID = new ArrayList<String>();
+                bor_map_bookID = new ArrayList<String>();
+                bor_map_userID = new ArrayList<String>();
+
+                JSONObject whole = new JSONObject(reservationsString);
+                JSONObject res = whole.getJSONObject(reserveTableName);
                 len = res.length();
                 Log.e("Json:", "Res Length: " + len);
-
                 Iterator<String> iterator = res.keys();
                 ArrayList<String> keys = new ArrayList<String>();
                 if(iterator.hasNext()){
@@ -354,12 +318,22 @@ public class BookDetail extends AppCompatActivity {
 
                 for(int i=0;i<keys.size();i++){
                     JSONObject obj = res.getJSONObject(keys.get(i));
-                    if(client.getId().equals(obj.getString("userID")) && bookId.equals(obj.getString("bookId"))){
-                        isAlreadyReserved = true;
-                    }
+                    res_map_userID.add(obj.getString(res_user_id));
+                    res_map_bookId.add(obj.getString(col_bookId));
                 }
 
                 BookDetail.numberOfReservations = len;
+
+                JSONArray borrowed = whole.getJSONArray(borrowedTableName);
+                for(int i=0;i<borrowed.length();i++){
+                    JSONObject borrowedBook = borrowed.getJSONObject(i);
+                    if(borrowedBook.get(col_bookId).equals(BookDetail.bookId)){
+                        BookDetail.dueDate = borrowedBook.getString(col_dueDate);
+                    }
+                    bor_map_bookID.add(borrowedBook.getString(col_bookId));
+                    bor_map_userID.add(borrowedBook.getString(res_user_id));
+                }
+
                 con.disconnect();
                 in.close();
                 scanner.close();

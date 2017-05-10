@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class NotificationUtilities {
-    private static final int NOTIFICATION_INTERVAL_MINUTES = 240;
+    private static final int NOTIFICATION_INTERVAL_MINUTES = 1260;
     private static final int NOTIFICATION_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(NOTIFICATION_INTERVAL_MINUTES));
     private static final int SYNC_FLEXTIME_SECONDS = NOTIFICATION_INTERVAL_SECONDS;
 

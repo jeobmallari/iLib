@@ -62,9 +62,7 @@ public class Profile extends AppCompatActivity
     SignedInGoogleClient client;
     Toast mToast;
 
-    String restCallLink = "https://fir-milib.firebaseio.com/reservations/.json?print=pretty";
     String book;
-    static int cartLen;
     static ArrayList<String> mats;
 
     public interface ResultCallback{
@@ -121,7 +119,7 @@ public class Profile extends AppCompatActivity
             }
         };
 
-        new CartCheckerTask(rcb).execute(restCallLink);
+        new CartCheckerTask(rcb).execute(getResources().getString(R.string.reservations_json_query));
 
     }
 
@@ -215,10 +213,6 @@ public class Profile extends AppCompatActivity
 
     public void onListItemClick(int clickedItemIndex, String bookTitle){
         if(mToast != null) mToast.cancel();
-
-        String toastMessage = "Item #"+(clickedItemIndex+1)+", "+bookTitle+" clicked.";
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-        mToast.show();
         this.book = bookTitle;
         Intent intent = new Intent(this, BookDetail.class);
         intent.putExtra(Intent.EXTRA_TEXT, bookTitle);

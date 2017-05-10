@@ -37,11 +37,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String userTableName = "users";
     public static final String bookTableName = "books";
     public static final String reserveTableName = "reservations";
+    public static final String borrowedTableName = "borrowed";
 
     public static final String col_title = "title";
     public static final String col_author = "author";
     public static final String col_accessionNo = "accessionNo";
-    public static final String col_bookId = "bookId";
+    public static final String col_bookId = "bookID";
     public static final String col_callNo = "callNo";
     public static final String col_circType = "circulationType";
     public static final String col_format = "format";
@@ -62,6 +63,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String user_col_displayPic = "displayPic";
     public static final String user_col_familyName = "familyName";
     public static final String user_col_givenName = "givenName";
+    public static final String user_col_studno = "studentNo";
+    public static final String user_col_homeadd = "homeadd";
+    public static final String user_col_collegeadd = "collegeadd";
+    public static final String user_col_bday = "bday";
 
     public static final String reserve_id = "resID";
     public static final String res_user_id = "userID";
@@ -100,12 +105,17 @@ public class DBHelper extends SQLiteOpenHelper {
             +user_col_familyName+" TEXT NOT NULL, "
             +user_col_givenName+" TEXT NOT NULL, "
             +user_col_displayPic+" TEXT NOT NULL, "
-            +user_col_email+" TEXT NOT NULL);";
+            +user_col_email+" TEXT NOT NULL, "
+            +user_col_studno+" TEXT NOT NULL, "
+            +user_col_homeadd+" TEXT NOT NULL, "
+            +user_col_collegeadd+" TEXT NOT NULL, "
+            +user_col_bday+" TEXT NOT NULL);";
+
 
     String createReservations = "CREATE VIRTUAL TABLE IF NOT EXISTS "+reserveTableName+" USING fts4("
             +reserve_id+" INTEGER PRIMARY KEY NOT NULL, "
             +col_bookId+" INTEGER NOT NULL, "
-            +user_col_id+" INTEGER NOT NULL);";
+            +res_user_id+" INTEGER NOT NULL);";
 
     SQLiteDatabase myWritableDB;
     SQLiteDatabase myReadableDB;
@@ -115,7 +125,6 @@ public class DBHelper extends SQLiteOpenHelper {
         if(sInstance == null){
             sInstance = new DBHelper(c.getApplicationContext());
         }
-        //Log.e("DBHelper instantiation", sInstance.context.toString());
         return sInstance;
     }
 

@@ -12,9 +12,45 @@ public class User {
     private String displayName= "";
     private String givenName = "";
     private String familyName ="";
-
     private String id = "";
     private String displayPic = "";
+
+    private String studentNo = "";
+    private String homeadd = "";
+    private String collegeadd = "";
+    private String bday = "";
+
+    public String getStudentNo() {
+        return studentNo;
+    }
+
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
+
+    public String getHomeadd() {
+        return homeadd;
+    }
+
+    public void setHomeadd(String homeadd) {
+        this.homeadd = homeadd;
+    }
+
+    public String getCollegeadd() {
+        return collegeadd;
+    }
+
+    public void setCollegeadd(String collegeadd) {
+        this.collegeadd = collegeadd;
+    }
+
+    public String getBday() {
+        return bday;
+    }
+
+    public void setBday(String bday) {
+        this.bday = bday;
+    }
 
     public User(){}
 
