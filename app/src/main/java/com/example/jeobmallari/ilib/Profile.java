@@ -56,10 +56,11 @@ import static com.example.jeobmallari.ilib.DBHelper.reserve_id;
 public class Profile extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecycleViewAdapter.ListItemClickListener {
 
-    RecyclerView rv;
-    RecycleViewAdapter rvAdapter;
-    GoogleApiClient mGoogleClient;
-    SignedInGoogleClient client;
+    static ImageView iv_pic;
+    static RecyclerView rv;
+    static RecycleViewAdapter rvAdapter;
+    static GoogleApiClient mGoogleClient;
+    static SignedInGoogleClient client;
     Toast mToast;
 
     String book;
@@ -86,25 +87,10 @@ public class Profile extends AppCompatActivity
 
         client = SignedInGoogleClient.getOurInstance();
         TextView tv_name = (TextView) findViewById(R.id.profileName);
-        ImageView iv_pic = (ImageView) findViewById(R.id.imageView6);
+        iv_pic = (ImageView) findViewById(R.id.imageView6);
         tv_name.setText(client.getGivenName()+" "+client.getFamilyName());
         mGoogleClient = client.getmGoogleClient();
         mats = new ArrayList<String>();
-
-        if(client.getDisplayPic() != null){
-            URL url = null;
-            try {
-                Log.e("SEE THIS: ", client.getName());
-                url = new URL(client.getDisplayPic().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            new DownloadImageTask(iv_pic).execute(url.toString());
-            Log.e("Image Bitmap", client.getDisplayPic().toString());
-        }
-        else {
-            Toast.makeText(this, "Please set a profile picture in your Google Account.", Toast.LENGTH_LONG).show();
-        }
 
         ResultCallback rcb = new ResultCallback() {
             @Override
@@ -116,10 +102,26 @@ public class Profile extends AppCompatActivity
                 // set arraylist to pass to rvAdapter
                 rvAdapter = new RecycleViewAdapter(mats, Profile.this);
                 rv.setAdapter(rvAdapter);
+                Log.e("Result Callback: ", "Adapter bound to RecyclerView. Length = " + mats.size());
             }
         };
 
         new CartCheckerTask(rcb).execute(getResources().getString(R.string.reservations_json_query));
+
+        if(client.getDisplayPic() != null){
+            URL url = null;
+            try {
+                Log.e("SEE THIS: ", client.getName());
+                url = new URL(client.getDisplayPic().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            new DownloadImageTask(Profile.iv_pic).execute(url.toString());
+            Log.e("Image Bitmap", client.getDisplayPic().toString());
+        }
+        else {
+            Toast.makeText(Profile.this, "Please set a profile picture in your Google Account.", Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -168,10 +170,6 @@ public class Profile extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             // start profile activity
             Intent intent = new Intent(this, Profile.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_cart) {
-            // start about activity
-            Intent intent = new Intent(this, Cart.class);
             startActivity(intent);
         } else if (id == R.id.nav_about) {
             // start about activity
@@ -233,7 +231,7 @@ public class Profile extends AppCompatActivity
             super.onPreExecute();
             progressDialog = new ProgressDialog(Profile.this);
             progressDialog.setCancelable(true);
-            progressDialog.setMessage("Loading...");
+            progressDialog.setMessage("Loading Image...");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setProgress(0);
             progressDialog.show();
@@ -275,7 +273,7 @@ public class Profile extends AppCompatActivity
             super.onPreExecute();
             progressDialog = new ProgressDialog(Profile.this);
             progressDialog.setCancelable(true);
-            progressDialog.setMessage("Loading...");
+            progressDialog.setMessage("Loading Cart...");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setProgress(0);
             progressDialog.show();
@@ -301,11 +299,16 @@ public class Profile extends AppCompatActivity
 
                 for(int a=0;a<reserves.length();a++){
                     JSONObject res = reserves.getJSONObject(keys.get(a));
-                    //Log.e("JSON: Res: ", res.toString());
-                    if(res.getString("userID").equals(client.getDisplayName())){
+                    Log.e("JSON: Res: ", res.toString());
+                    if(res.getString(res_user_id).equals(client.getId())){
                         // ------------------------------------------------
                         toReturn++;
-                        Profile.mats.add(res.getString("bookId"));
+                        String bookTitle = res.getString("book");
+                        String author = res.getString("author");
+                        String toPass = bookTitle+","+author;
+                        Profile.mats.add(toPass);
+
+                        Log.e("doInBackground: ", Profile.mats.get(a));
                         // ------------------------------------------------
                     }
                 }
@@ -323,6 +326,7 @@ public class Profile extends AppCompatActivity
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             progressDialog.dismiss();
+            Log.e("Cart Loader: ", "onPostExecute");
             rcb.onRespond();
         }
     }

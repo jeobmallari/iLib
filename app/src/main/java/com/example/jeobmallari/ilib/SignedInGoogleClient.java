@@ -29,6 +29,15 @@ class SignedInGoogleClient {
     private GoogleSignInAccount mGoogleSignInAcct;
     private DBHelper dbHelper;
     private SQLiteDatabase db;
+    private String college = "";
+
+    public void setCollege(String college){
+        this.college = college;
+    }
+
+    public String getCollege(){
+        return this.college;
+    }
 
     private static SignedInGoogleClient ourInstance = null;
 

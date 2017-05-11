@@ -19,10 +19,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.widget.AdapterView;
 import android.widget.Button;
 
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -59,6 +61,20 @@ public class Home extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         client = SignedInGoogleClient.getOurInstance();    // USE THIS TO REFER TO THE USER'S UP MAIL ACCT
         mGoogleClient = client.getmGoogleClient();
+
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner_home);
+        final EditText edittext = (EditText) findViewById(R.id.et_query_home);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                edittext.setHint(spinner.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
     }
 
@@ -129,10 +145,6 @@ public class Home extends AppCompatActivity
             // start profile activity
             Intent intent = new Intent(this, Profile.class);
             startActivity(intent);
-        } else if (id == R.id.nav_cart) {
-            // start about activity
-            Intent intent = new Intent(this, Cart.class);
-            startActivity(intent);
         } else if (id == R.id.nav_about) {
             // start about activity
         } else if (id == R.id.nav_settings) {
@@ -174,9 +186,9 @@ public class Home extends AppCompatActivity
     public void searchIsTapped(View view){
         // change to listview activity containing list of books
         Intent intent = new Intent(this, ResultsList.class);
-        EditText et = (EditText) findViewById(R.id.et_query_home);
         Spinner spinner = (Spinner) findViewById(R.id.spinner_home);
         String spinnerField = spinner.getSelectedItem().toString();
+        EditText et = (EditText) findViewById(R.id.et_query_home);
         String field = "";
         String[] spinnerArray = this.getResources().getStringArray(R.array.field);
         for(int i=0;i<spinnerArray.length;i++){

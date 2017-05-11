@@ -115,6 +115,7 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
             }
 
             String rawQry = "SELECT " + dbHelper.col_title
+                    + ", " + dbHelper.col_author
                     + " FROM " + dbHelper.bookTableName
                     + " WHERE " + tokens[1]
                     + " MATCH '" + tokens[0] + "';";
@@ -125,8 +126,9 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
                 if (cursor.moveToFirst()) {
                     do {
                         String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
+                        String author = cursor.getString(cursor.getColumnIndex(dbHelper.col_author));
                         Log.e("Item to add: ", takenTitle);
-                        items.add(takenTitle);
+                        items.add(takenTitle+","+author);
                     } while (cursor.moveToNext());
                 } else {
                     Toast.makeText(this, "Error in executing raw query", Toast.LENGTH_LONG).show();
@@ -149,12 +151,12 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
             try {
                 Log.e("Raw Query: ", rawQry);
                 Cursor cursor = db.rawQuery(rawQry, null);
-                Toast.makeText(this, "Cursor size: " + cursor.getCount(), Toast.LENGTH_LONG).show();
                 if (cursor.moveToFirst()) {
                     do {
                         String takenTitle = cursor.getString(cursor.getColumnIndex(dbHelper.col_title));
+                        String author = cursor.getString(cursor.getColumnIndex(dbHelper.col_author));
                         Log.e("Item to add: ", takenTitle);
-                        items.add(takenTitle);
+                        items.add(takenTitle+","+author);
                     } while (cursor.moveToNext());
                 } else {
                     Toast.makeText(this, "Error in executing raw query", Toast.LENGTH_LONG).show();
@@ -173,10 +175,6 @@ public class ResultsList extends AppCompatActivity implements RecycleViewAdapter
 
     public void onListItemClick(int clickedItemIndex, String bookTitle){
         if(mToast != null) mToast.cancel();
-
-        String toastMessage = "Item #"+(clickedItemIndex+1)+", "+bookTitle+" clicked.";
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-        mToast.show();
         this.book = bookTitle;
         Intent intent = new Intent(this, BookDetail.class);
         intent.putExtra(Intent.EXTRA_TEXT, bookTitle);

@@ -30,10 +30,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Cart"
-            android:label="@string/title_activity_cart"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".BookDetail"
             android:label="@string/title_activity_book_detail"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -64,8 +60,7 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".CompleteSignin"
-            android:theme="@android:style/Theme.Holo.Dialog" />
+        <activity android:name=".CompleteSignin" />
     </application>
 
 </manifest>

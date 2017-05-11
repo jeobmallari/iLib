@@ -441,36 +441,64 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 dbUser.setDisplayPic(user.getDisplayPic().toString());
             else dbUser.setDisplayPic("");
 
-            FirebaseDatabase.getInstance().getReference().child(dbHelper.userTableName)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        int i=0;
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                User user = snapshot.getValue(User.class);
-                                userIDCollection.add(user.getId());
-                                Log.e("userID collection", "added from rtdb: "+user.getId());
-                                if(dbUser.getId().equals(user.getId())){
-                                    mUserRef.child(dbUser.getId()).setValue(dbUser); // user already exists in db
-                                    break;
-                                }
-                                i++;
-                            }
-                            Log.e("userID collection", "new user: "+dbUser.getId());
-                            mUserRef.child(dbUser.getId()).setValue(dbUser);
+//            FirebaseDatabase.getInstance().getReference().child(dbHelper.userTableName)
+//                    .addListenerForSingleValueEvent(new ValueEventListener() {
+//                        int i=0;
+//                        @Override
+//                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                                User user = snapshot.getValue(User.class);
+//                                userIDCollection.add(user.getId());
+//                                Log.e("userID collection", "added from rtdb: "+user.getId());
+//                                if(dbUser.getId().equals(user.getId())){
+//                                    mUserRef.child(dbUser.getId()).setValue(dbUser); // user already exists in db
+//                                    break;
+//                                }
+//                                i++;
+//                            }
+//                            Log.e("userID collection", "new user: "+dbUser.getId());
+//                            mUserRef.child(dbUser.getId()).setValue(dbUser);
+//
+//                        }
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//
+//                        }
+//                    });
 
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+            SQLiteDatabase database = dbHelper.getReadableDatabase();
+            Cursor cursor = database.rawQuery("select id from users;", null);
+            boolean oldUser = false;
+            if(cursor.moveToFirst()){
+                do{
+                    String cursorID = cursor.getString(cursor.getColumnIndex(user_col_id));
+                    if(cursorID.equals(user.getId())){
+                        Log.e("Cursor comparison: ", "User is already in the database");
+                        oldUser = true;
+                    }
+                }while(cursor.moveToNext());
+            }
+            else {
+                Log.e("Cursor comparison: ", "CURSOR ERROR");
+            }
 
-                        }
-                    });
+            if(!oldUser){
+                // new user to sign in
+                // start complete signup activity
+                Intent intent = new Intent(this, CompleteSignin.class);
+                startActivity(intent);
+                finish();
+            }
+            else {
+                // new user to sign in
+                // start complete signup activity
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                finish();
+            }
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
 
-            Intent intent = new Intent(this, Home.class);
-            startActivity(intent);
-            finish();
         } else {
             // Signed out, show unauthenticated UI.
             Log.e(TAG, "Login err: "+result.isSuccess());

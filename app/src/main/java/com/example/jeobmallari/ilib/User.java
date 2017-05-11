@@ -19,6 +19,15 @@ public class User {
     private String homeadd = "";
     private String collegeadd = "";
     private String bday = "";
+    private String college = "";
+
+    public void setCollege(String college){
+        this.college = college;
+    }
+
+    public String getCollege(){
+        return this.college;
+    }
 
     public String getStudentNo() {
         return studentNo;

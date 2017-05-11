@@ -65,6 +65,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
     public class ResourceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView resource_tv;
+        TextView author;
         ArrayList<String> listItems;
         View rv_parent;
         public ResourceViewHolder(View itemView){
@@ -73,10 +74,14 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             listItems = RecycleViewAdapter.items;
             itemView.setOnClickListener(this);
             resource_tv = (TextView) itemView.findViewById(R.id.tv_resource_item);
+            author = (TextView) itemView.findViewById(R.id.tv_author);
         }
 
         public void bind(int data){ // data is the list index
-            resource_tv.setText(listItems.get(data)+"\n");
+            String toParse = listItems.get(data);
+            String[] tokens = toParse.split(",");
+            resource_tv.setText(tokens[0]);
+            author.setText(tokens[1]);
         }
 
         @Override

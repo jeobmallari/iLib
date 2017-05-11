@@ -61,6 +61,8 @@ public class BookDetail extends AppCompatActivity {
     static String bookTitle;
     static String author;
     static String dueDate;
+    static final int maxReservations = 1;
+    static boolean hasReservedMaxBooks = true;
 
     static Context context;
 
@@ -142,11 +144,19 @@ public class BookDetail extends AppCompatActivity {
         setElements();
     }
 
+    public static void reservedMaxBooks(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(BookDetail.context);
+        builder.setMessage(R.string.reachedMaxBooksToReserve_body)
+                .setTitle(R.string.materialInTheLib_title);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        hasReservedMaxBooks = false;
+    }
+
     public static void showMaterialIsInTheLib(){
         AlertDialog.Builder builder = new AlertDialog.Builder(BookDetail.context);
         builder.setMessage(R.string.materialInTheLib_body)
                 .setTitle(R.string.materialInTheLib_title);
-
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -155,7 +165,6 @@ public class BookDetail extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(BookDetail.context);
         builder.setMessage(R.string.alreadyReserved_body)
                 .setTitle(R.string.alreadyReserved_title);
-
         AlertDialog dialog = builder.create();
         dialog.show();
         isAlreadyReserved = false;
@@ -163,6 +172,14 @@ public class BookDetail extends AppCompatActivity {
 
     public void reserveMaterial(){
         DatabaseReference reservations = FirebaseDatabase.getInstance().getReference().child(reserveTableName);
+        int booksReservedByUser = 0;
+        for(int i=0;i<res_map_userID.size();i++){
+            if(client.getId().equals(res_map_userID.get(i))){
+                booksReservedByUser++;
+            }
+        }
+        if(booksReservedByUser >= maxReservations)
+            hasReservedMaxBooks = true;
 
         for(int i=0;i<res_map_bookId.size();i++){
             for(int j=0;j<res_map_userID.size();j++){
@@ -179,8 +196,10 @@ public class BookDetail extends AppCompatActivity {
                 fromBorrowed = true;
             }
         }
-
-        if(isAlreadyReserved) {
+        if(hasReservedMaxBooks){
+            reservedMaxBooks();
+        }
+        else if(isAlreadyReserved) {
             alreadyReserved();      // user already reserved for this book
         }
         else if(!fromBorrowed){

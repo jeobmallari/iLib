@@ -5,7 +5,7 @@
     <string name="login">Login</string>
     <string name="signup">Signup</string>
     <string name="title_activity_signup">Sign up</string>
-    <string name="srch">SEARCH</string>
+    <string name="srch">Search</string>
     <string name="searchFieldHint">Enter Here</string>
     <string name="textImport">Import</string>
     <string name="textGallery">Gallery</string>
@@ -259,6 +259,7 @@
     <string name="alreadyReserved_title">Wait</string>
     <string name="alreadyReserved_body">You have already reserved for this material</string>
     <string name="materialInTheLib_body">The material you clicked is available in the library</string>
+    <string name="reachedMaxBooksToReserve_body">You have reached the maximum number of books to reserve.</string>
     <string name="materialInTheLib_title">Oops! Material cannot be reserved!</string>
 
     <string name="notification_title">Alert!</string>
@@ -268,9 +269,10 @@
     <string name="studnum">Student Number</string>
     <string name="homeadd">Home Address</string>
     <string name="collegeadd">College Address</string>
-    <string name="birthday">Birthday</string>
+    <string name="birthday">Birthday (MM/DD/YYYY)</string>
     <string name="cancel">Cancel</string>
     <string name="signin">Sign in</string>
+    <string name="completeSignin_button">Submit</string>
 
     <string name="full_json_query">https://fir-milib.firebaseio.com/.json?print=pretty</string>
     <string name="reservations_json_query">https://fir-milib.firebaseio.com/reservations/.json?print=pretty</string>

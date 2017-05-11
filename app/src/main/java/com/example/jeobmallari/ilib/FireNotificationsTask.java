@@ -17,6 +17,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class FireNotificationsTask {
     public static final String ACTION_FIRE_NOTIFICATION = "fire-notification";
     public static final String ACTION_DISMISS_NOTIFICATION = "dismiss-notification";
+    public static int uniqueNotifID = 1;
 
     private static NotificationManager mNotifsManager;
 
@@ -39,8 +40,7 @@ public class FireNotificationsTask {
         Intent callBackIntent = new Intent(context, LoginActivity.class);
         callBackIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         callBackIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, callBackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, uniqueNotifID, callBackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
@@ -53,6 +53,6 @@ public class FireNotificationsTask {
                 .setContentIntent(pendingIntent);
 
         mNotifsManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        mNotifsManager.notify(1, builder.build());
+        mNotifsManager.notify(uniqueNotifID++, builder.build());
     }
 }

@@ -135,10 +135,6 @@ public class AdvSearchActivity extends AppCompatActivity
             // start profile activity
             Intent intent = new Intent(this, Profile.class);
             startActivity(intent);
-        } else if (id == R.id.nav_cart) {
-            // start about activity
-            Intent intent = new Intent(this, Cart.class);
-            startActivity(intent);
         } else if (id == R.id.nav_about) {
             // start about activity
         } else if (id == R.id.nav_settings) {
